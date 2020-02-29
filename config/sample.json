@@ -1,0 +1,10 @@
+{
+    "input_shape":{
+        "width": 512,
+        "height": 512,
+        "bpp": 1
+    },
+    "train":{
+        "files_path": "PATH_TO_TRAINING_FILES"
+    }
+}
