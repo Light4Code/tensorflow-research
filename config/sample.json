@@ -1,10 +1,13 @@
 {
-    "input_shape":{
-        "width": 512,
-        "height": 512,
-        "bpp": 1
-    },
-    "train":{
+    "input_shape": [512, 512, 1],
+    "train": {
+        "batch_size": 40,
+        "epochs": 100,
+        "learning_rate": 1e-3,
         "files_path": "PATH_TO_TRAINING_FILES"
+    },
+    "test": {
+        "file_path": "PATH_TO_TEST_FILE",
+        "threshold": 0.4
     }
 }

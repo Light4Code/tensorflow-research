@@ -1,5 +1,6 @@
 import cv2
 import glob
+import numpy as np
 
 
 class ImageUtil():
@@ -20,3 +21,22 @@ class ImageUtil():
 
     def resize_image(self, image, target_width, target_height):
         return cv2.resize(image, (target_width, target_height), interpolation=cv2.INTER_CUBIC)
+
+    def get_color_mode(self, bpp):
+        mode = self.cv2_grayscale
+        if bpp == 3:
+            mode = self.cv2_color
+        elif bpp != 1 and bpp != 3:
+            mode = self.cv2_unchanged
+        return mode
+
+    def normalize(self, image, shape):
+        return image.reshape(shape) / 255.0  # create normalizes image
+
+    def create_diff(self, original_image, predicted_image):
+        diff = original_image - predicted_image
+        return np.abs(diff)
+    
+    def apply_threshold(self, diff_image, threshold):
+        diff_image[diff_image < threshold] = 0
+        return diff_image
