@@ -59,28 +59,32 @@ def main():
 
     # ToDo: Train model
     model.fit(train_images, train_images,
-              batch_size=config.batch_size, epochs=config.epochs)
-
-    # ToDo: Eval model
+              batch_size=config.batch_size, epochs=config.epochs, shuffle=True)
 
     # ToDo: Display sample prediction
     if config.test_file_path and config.test_threshold:
         test_image = load_image(config.test_file_path, config, image_util)
         test_images = np.array([test_image])
         prediction = model.predict(test_images, batch_size=1)
+
+        plt_shape = (config.input_shape[0], config.input_shape[1])
+        plt_cmap = 'gray'
+        if config.input_shape[2] > 1:
+            plt_shape = (config.input_shape[0], config.input_shape[1], config.input_shape[2])
+
         plt.subplot(221)
         plt.title('Input image')
-        plt.imshow(test_image.reshape(config.input_shape[0], config.input_shape[1]), cmap='gray')
+        plt.imshow(test_image.reshape(plt_shape), cmap=plt_cmap)
         plt.subplot(222)
         plt.title('Prediction image')
-        plt.imshow(prediction.reshape(config.input_shape[0], config.input_shape[1]), cmap='gray')
+        plt.imshow(prediction.reshape(plt_shape), cmap=plt_cmap)
         plt.subplot(223)
         plt.title('Difference image (before threshold)')
         diff = image_util.create_diff(test_image, prediction)
-        plt.imshow(diff.reshape(config.input_shape[0], config.input_shape[1]), cmap='gray')
+        plt.imshow(diff.reshape(plt_shape), cmap=plt_cmap)
         plt.subplot(224)
         plt.title('Result image (after threshold)')
-        plt.imshow(image_util.apply_threshold(diff, config.test_threshold).reshape(config.input_shape[0], config.input_shape[1]), cmap='gray')
+        plt.imshow(image_util.apply_threshold(diff, config.test_threshold).reshape(plt_shape), cmap=plt_cmap)
         plt.show()
 
 

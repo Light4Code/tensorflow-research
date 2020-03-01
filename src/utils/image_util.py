@@ -17,7 +17,7 @@ class ImageUtil():
         return images
 
     def load_image(self, image_path, color_mode=-1):
-        return cv2.imread(image_path, color_mode)
+        return cv2.cvtColor(cv2.imread(image_path, color_mode), cv2.COLOR_BGR2RGB)
 
     def resize_image(self, image, target_width, target_height):
         return cv2.resize(image, (target_width, target_height), interpolation=cv2.INTER_CUBIC)
@@ -36,7 +36,8 @@ class ImageUtil():
     def create_diff(self, original_image, predicted_image):
         diff = original_image - predicted_image
         return np.abs(diff)
-    
+
     def apply_threshold(self, diff_image, threshold):
         diff_image[diff_image < threshold] = 0
+        diff_image[diff_image >= threshold] = 1
         return diff_image
