@@ -17,7 +17,10 @@ class ImageUtil():
         return images
 
     def load_image(self, image_path, color_mode=-1):
-        return cv2.cvtColor(cv2.imread(image_path, color_mode), cv2.COLOR_BGR2RGB)
+        img = cv2.imread(image_path, color_mode)
+        if not img:
+            return None
+        return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     def resize_image(self, image, target_width, target_height):
         return cv2.resize(image, (target_width, target_height), interpolation=cv2.INTER_CUBIC)
