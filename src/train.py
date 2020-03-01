@@ -34,6 +34,13 @@ def main():
         type=float,
         help='Overwrites the test threshold'
     )
+    parser.add_argument(
+        "--epochs",
+        dest='epochs',
+        metavar="number (1-n)",
+        type=int,
+        help='Overwrites the train epochs'
+    )
 
     args = parser.parse_args()
     config_path = args.config
@@ -49,6 +56,9 @@ def main():
 
     if args.test_threshold:
         config.test_threshold = args.test_threshold
+    
+    if args.epochs:
+        config.epochs = args.epochs
 
     # Load training images
     train_images = load_images(config, image_util)
