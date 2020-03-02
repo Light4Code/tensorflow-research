@@ -5,14 +5,14 @@ from tensorflow.keras.layers import (Activation, BatchNormalization, Conv2D,
                                      Conv2DTranspose, Dense, Flatten,
                                      LeakyReLU, Reshape)
 from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.optimizers import Adam
 
 
 class AdvancedModel():
   def __init__(self, learning_rate=1e-4):
     super().__init__()
-    self.optimizer_name = 'sgd'
-    self.optimizer = SGD(lr=learning_rate, momentum=0.9)
+    self.optimizer_name = 'adma'
+    self.optimizer = Adam(lr=learning_rate)
 
   def create(self, input_shape=(256,256,1), filters=(32, 64), latent_dim=16):
       inputs = Input(shape=input_shape)
@@ -48,5 +48,5 @@ class AdvancedModel():
       self.optimizer_name = optimizer_name
 
   def compile(self, loss='mse'):
-      self.autoencoder.compile(loss=loss, optimizer=self.optimizer, metrics=['accuracy'])
+      self.autoencoder.compile(loss=loss, optimizer=self.optimizer, metrics=['val_loss','accuracy'])
     
