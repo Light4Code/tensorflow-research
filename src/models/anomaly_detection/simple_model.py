@@ -31,3 +31,14 @@ class SimpleModel():
 
     def compile(self, loss='mean_squared_error'):
         self.model.compile(loss=loss, optimizer=self.optimizer, metrics=['accuracy'])
+
+    def train(self, config, train_images, train_datagen):
+      if config.image_data_generator:
+          self.model.fit(train_datagen.flow(train_images, train_images, batch_size=config.batch_size),
+                              epochs=config.epochs, steps_per_epoch=len(train_images) / config.batch_size)
+      else:
+          self.model.fit(train_images, train_images,
+                    batch_size=config.batch_size, epochs=config.epochs)
+
+    def predict(self, test_images):
+      return self.model.predict(test_images, batch_size=len(test_images))

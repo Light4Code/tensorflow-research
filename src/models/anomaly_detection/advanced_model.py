@@ -50,3 +50,14 @@ class AdvancedModel():
   def compile(self, loss='mse'):
       self.autoencoder.compile(loss=loss, optimizer=self.optimizer, metrics=['val_loss','accuracy'])
     
+  def train(self, config, train_images, train_datagen):
+      if config.image_data_generator:
+          self.model.fit(train_datagen.flow(train_images, train_images, batch_size=config.batch_size),
+                              epochs=config.epochs, steps_per_epoch=len(train_images) / config.batch_size)
+      else:
+          self.model.fit(train_images, train_images,
+                    batch_size=config.batch_size, epochs=config.epochs)
+  
+  def predict(self, test_images):
+      return self.model.predict(test_images, batch_size=len(test_images))
+    

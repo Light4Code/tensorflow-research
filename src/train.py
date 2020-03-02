@@ -10,6 +10,7 @@ from tensorflow.keras.utils import *
 
 from models.anomaly_detection.advanced_model import AdvancedModel
 from models.anomaly_detection.simple_model import SimpleModel
+from models.anomaly_detection.oneshot_model import OneShotModel
 from utils.config import Config
 from utils.image_util import ImageUtil
 
@@ -136,18 +137,13 @@ def train(config, image_util):
     model = create_model(config)
 
     # ToDo: Train model
-    if config.image_data_generator:
-        model.fit(train_datagen.flow(train_images, train_images, batch_size=config.batch_size),
-                            epochs=config.epochs, steps_per_epoch=len(train_images) / config.batch_size)
-    else:
-        model.fit(train_images, train_images,
-                  batch_size=config.batch_size, epochs=config.epochs)
+    model.train(config, train_images, train_datagen)
 
     # ToDo: Display sample prediction
     if config.test_file_path and config.test_threshold:
         test_image = load_image(config.test_file_path, config, image_util)
         test_images = np.array([test_image])
-        prediction = model.predict(test_images, batch_size=1)
+        prediction = model.predict(test_images)
 
         plt_shape = (config.input_shape[0], config.input_shape[1])
         plt_cmap = 'gray'
@@ -210,8 +206,10 @@ def create_model(config):
         model_container = SimpleModel(config.learning_rate)
     elif config.model == 'advanced':
         model_container = AdvancedModel(config.learning_rate)
+    elif config.model == 'oneshot':
+        model_container = OneShotModel(config.learning_rate)
 
-    model = model_container.create(input_shape=config.input_shape)
+    model_container.create(input_shape=config.input_shape)
 
     if config.optimizer and config.optimizer != model_container.optimizer_name:
         optimizer = create_optimizer(config)
@@ -222,7 +220,7 @@ def create_model(config):
     else:
         model_container.compile()
 
-    return model
+    return model_container
 
 
 if __name__ == '__main__':
