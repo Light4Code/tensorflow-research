@@ -4,11 +4,11 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.optimizers import SGD, Adam
+from tensorflow.keras.optimizers import SGD, Adam, RMSprop
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.utils import *
 
 from models.anomaly_detection.advanced_model import AdvancedModel
-from models.anomaly_detection.anomaly_vgg16_model import AnomalyVgg16Model
 from models.anomaly_detection.simple_model import SimpleModel
 from utils.config import Config
 from utils.image_util import ImageUtil
@@ -66,6 +66,20 @@ def main():
         metavar="string (e.g. 'advanced')",
         help='Overwrites the train model'
     )
+    parser.add_argument(
+        "--batch_size",
+        dest='batch_size',
+        metavar="number (1-n)",
+        type=int,
+        help='Overwrites the train batch size'
+    )
+    parser.add_argument(
+        "--learning_rate",
+        dest='learning_rate',
+        metavar="number",
+        type=float,
+        help='Overwrites the learning rate'
+    )
 
     args = parser.parse_args()
     config_path = args.config
@@ -87,29 +101,41 @@ def main():
         config.loss = args.loss
     if args.model:
         config.model = args.model
+    if args.batch_size:
+        config.batch_size = args.batch_size
+    if args.learning_rate:
+        config.learning_rate = args.learning_rate
 
+    train(config, image_util)
+
+
+def train(config, image_util):
     # Load training images
     train_images = load_images(config, image_util)
     train_images = np.array(train_images)
 
     # Create train generator
-    train_datagen = ImageDataGenerator(
-        rescale = 1./255,
-        horizontal_flip = True,
-        fill_mode = "nearest",
-        zoom_range = 0.3,
-        width_shift_range = 0.3,
-        height_shift_range=0.3,
-        rotation_range=30
-    )
-    train_datagen.fit(train_images)
+    if config.image_data_generator:
+        train_datagen = ImageDataGenerator(
+            horizontal_flip=config.image_data_generator_horizonal_flip,
+            fill_mode="nearest",
+            zoom_range=config.image_data_generator_zoom_range,
+            width_shift_range=config.image_data_generator_width_shift_range,
+            height_shift_range=config.image_data_generator_height_shift_range,
+            rotation_range=config.image_data_generator_rotation_range
+        )
+        train_datagen.fit(train_images)
 
     # ToDo: Create model
     model = create_model(config)
 
     # ToDo: Train model
-    model.fit_generator(train_datagen.flow(train_images, train_images, batch_size=config.batch_size),
-                    steps_per_epoch=len(train_images) / 32, epochs=config.epochs)
+    if config.image_data_generator:
+        model.fit_generator(train_datagen.flow(train_images, train_images, batch_size=config.batch_size),
+                            epochs=config.epochs, steps_per_epoch=len(train_images) / config.batch_size)
+    else:
+        model.fit(train_images, train_images,
+                  batch_size=config.batch_size, epochs=config.epochs)
 
     # ToDo: Display sample prediction
     if config.test_file_path and config.test_threshold:
@@ -120,7 +146,8 @@ def main():
         plt_shape = (config.input_shape[0], config.input_shape[1])
         plt_cmap = 'gray'
         if config.input_shape[2] > 1:
-            plt_shape = (config.input_shape[0], config.input_shape[1], config.input_shape[2])
+            plt_shape = (
+                config.input_shape[0], config.input_shape[1], config.input_shape[2])
 
         plt.subplot(221)
         plt.title('Input image')
@@ -134,7 +161,8 @@ def main():
         plt.imshow(diff.reshape(plt_shape), cmap=plt_cmap)
         plt.subplot(224)
         plt.title('Result image (after threshold)')
-        plt.imshow(image_util.apply_threshold(diff, config.test_threshold).reshape(plt_shape), cmap=plt_cmap)
+        plt.imshow(image_util.apply_threshold(
+            diff, config.test_threshold).reshape(plt_shape), cmap=plt_cmap)
         plt.show()
 
 
@@ -145,7 +173,7 @@ def load_images(config, image_util):
     resized = []
     for img in images:
         res = image_util.resize_image(
-            img, config.input_shape[0], config.input_shape[1])
+            img, config.input_shape[1], config.input_shape[0])
         res = image_util.normalize(res, config.input_shape)
         resized.append(res)
     return resized
@@ -155,7 +183,7 @@ def load_image(path, config, image_util):
     mode = image_util.get_color_mode(config.input_shape[2])
     image = image_util.load_image(path, mode)
     resized = image_util.resize_image(
-        image, config.input_shape[0], config.input_shape[1])
+        image, config.input_shape[1], config.input_shape[0])
     resized = image_util.normalize(resized, config.input_shape)
     return resized
 
@@ -165,16 +193,17 @@ def create_model(config):
         model = SimpleModel().create(input_shape=config.input_shape)
     elif config.model == 'advanced':
         model = AdvancedModel().create(input_shape=config.input_shape)
-    elif config.model == 'anomaly_vgg16':
-        model = AnomalyVgg16Model().create(input_shape=config.input_shape)
-    
+
     if config.optimizer == 'adam':
         optimizer = Adam(lr=config.learning_rate)
     elif config.optimizer == 'sgd':
         optimizer = SGD(lr=config.learning_rate, momentum=0.9)
+    elif config.optimizer == 'rmsprop':
+        optimizer = RMSprop(lr=config.learning_rate)
+        config.loss = ''
     else:
         ValueError
-    model.compile(loss=config.loss, optimizer=optimizer)
+    model.compile(loss=config.loss, optimizer=optimizer, metrics=["accuracy"])
 
     return model
 

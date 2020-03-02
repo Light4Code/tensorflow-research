@@ -18,6 +18,21 @@ class Config():
             self.optimizer = train['optimizer']
 
             try:
+                self.image_data_generator = train['image_data_generator']
+                self.image_data_generator_horizonal_flip = self.image_data_generator['horizontal_flip']
+                self.image_data_generator_zoom_range = self.image_data_generator['zoom_range']
+                self.image_data_generator_width_shift_range = self.image_data_generator['width_shift_range']
+                self.image_data_generator_height_shift_range = self.image_data_generator['height_shift_range']
+                self.image_data_generator_rotation_range = self.image_data_generator['rotation_range']
+            except:
+                self.image_data_generator = None
+                self.image_data_generator_horizonal_flip = None
+                self.image_data_generator_zoom_range = None
+                self.image_data_generator_width_shift_range = None
+                self.image_data_generator_height_shift_range = None
+                self.image_data_generator_rotation_range = None
+
+            try:
                 test = data['test']
                 self.test_file_path = test['file_path']
                 self.test_threshold = test['threshold']

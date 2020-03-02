@@ -10,10 +10,10 @@ class SimpleModel():
         input = tf.keras.Input(input_shape, name='input_shape')
         x = input
         x = Flatten()(x)
-        x = Dense(input_dim=input_dim, units = 100, activation='tanh')(x)
-        x = Dense(units = 16, activation='tanh')(x)
-        x = Dense(units = 100, activation='tanh')(x)
-        x = Dense(units = input_dim, activation='tanh')(x)
+        x = Dense(input_dim=input_dim, units = 25, activation='relu')(x)
+        x = Dense(units = 3, activation='relu')(x)
+        x = Dense(units = 25, activation='relu')(x)
+        x = Dense(units = input_dim)(x)
         x = Reshape(input_shape)(x)
         
         model = Model(input, x)
