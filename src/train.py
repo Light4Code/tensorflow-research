@@ -106,6 +106,12 @@ def main():
     if args.learning_rate:
         config.learning_rate = args.learning_rate
 
+    physical_devices = tf.config.list_physical_devices('GPU') 
+    try: 
+        tf.config.experimental.set_memory_growth(physical_devices[0], True) 
+    except: 
+        # Invalid device or cannot modify virtual devices once initialized. 
+        pass 
     train(config, image_util)
 
 
@@ -131,7 +137,7 @@ def train(config, image_util):
 
     # ToDo: Train model
     if config.image_data_generator:
-        model.fit_generator(train_datagen.flow(train_images, train_images, batch_size=config.batch_size),
+        model.fit(train_datagen.flow(train_images, train_images, batch_size=config.batch_size),
                             epochs=config.epochs, steps_per_epoch=len(train_images) / config.batch_size)
     else:
         model.fit(train_images, train_images,
@@ -187,13 +193,7 @@ def load_image(path, config, image_util):
     resized = image_util.normalize(resized, config.input_shape)
     return resized
 
-
-def create_model(config):
-    if config.model == 'simple':
-        model = SimpleModel().create(input_shape=config.input_shape)
-    elif config.model == 'advanced':
-        model = AdvancedModel().create(input_shape=config.input_shape)
-
+def create_optimizer(config):
     if config.optimizer == 'adam':
         optimizer = Adam(lr=config.learning_rate)
     elif config.optimizer == 'sgd':
@@ -203,7 +203,24 @@ def create_model(config):
         config.loss = ''
     else:
         ValueError
-    model.compile(loss=config.loss, optimizer=optimizer, metrics=["accuracy"])
+    return optimizer
+
+def create_model(config):
+    if config.model == 'simple':
+        model_container = SimpleModel(config.learning_rate)
+    elif config.model == 'advanced':
+        model_container = AdvancedModel(config.learning_rate)
+
+    model = model_container.create(input_shape=config.input_shape)
+
+    if config.optimizer and config.optimizer != model_container.optimizer_name:
+        optimizer = create_optimizer(config)
+        model_container.overwrite_optimizer(optimizer)
+    
+    if config.loss:
+        model_container.compile(config.loss)
+    else:
+        model_container.compile()
 
     return model
 

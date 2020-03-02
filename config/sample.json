@@ -4,9 +4,9 @@
         "model": "simple",
         "batch_size": 40,
         "epochs": 100,
-        "learning_rate": 1e-3,
-        "loss": "mean_squared_error",
-        "optimizer": "adam",
+        "learning_rate": 1e-4,
+        "loss": "",
+        "optimizer": "",
         "files_path": "PATH_TO_TRAINING_FILES",
         "image_data_generator": {
             "horizontal_flip": true,

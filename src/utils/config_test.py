@@ -15,7 +15,7 @@ class Test_Config(unittest.TestCase):
         self.assertEqual([512, 512, 3], config.input_shape)
         self.assertEqual(40, config.batch_size)
         self.assertEqual(100, config.epochs)
-        self.assertEqual(1e-3, config.learning_rate)
+        self.assertEqual(1e-4, config.learning_rate)
         self.assertEqual('PATH_TO_TRAINING_FILES', config.train_files_path)
         self.assertEqual('PATH_TO_TEST_FILE', config.test_file_path)
         self.assertEqual(0.45, config.test_threshold)
