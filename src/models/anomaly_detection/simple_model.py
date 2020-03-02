@@ -3,8 +3,9 @@ from tensorflow.keras.layers import Dense, Flatten, Reshape
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 
+
 class SimpleModel():
-    def create(self, learning_rate = 1e-3, input_shape=(256,256,1)):
+    def create(self, input_shape=(256,256,1)):
         input_dim = input_shape[0] * input_shape[1] * input_shape[2]
         input = tf.keras.Input(input_shape, name='input_shape')
         x = input
@@ -16,7 +17,5 @@ class SimpleModel():
         x = Reshape(input_shape)(x)
         
         model = Model(input, x)
-        optimizer = Adam(lr=learning_rate)
-        model.compile(loss='mean_squared_error', optimizer=optimizer)
+        print(model.summary())
         return model
-        

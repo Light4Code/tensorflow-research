@@ -1,4 +1,6 @@
 import json
+
+
 class Config():
     def __init__(self, config_path):
         super().__init__()
@@ -7,10 +9,13 @@ class Config():
             self.input_shape = data['input_shape']
 
             train = data['train']
+            self.model = train['model']
             self.train_files_path = train['files_path']
             self.batch_size = train['batch_size']
             self.epochs = train['epochs']
             self.learning_rate = train['learning_rate']
+            self.loss = train['loss']
+            self.optimizer = train['optimizer']
 
             try:
                 test = data['test']
@@ -19,4 +24,3 @@ class Config():
             except:
                 self.test_file_path = None
                 self.test_threshold = None
-

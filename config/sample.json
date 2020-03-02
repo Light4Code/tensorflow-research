@@ -1,13 +1,16 @@
 {
     "input_shape": [512, 512, 3],
     "train": {
+        "model": "simple",
         "batch_size": 40,
         "epochs": 100,
         "learning_rate": 1e-3,
+        "loss": "mean_squared_error",
+        "optimizer": "adam",
         "files_path": "PATH_TO_TRAINING_FILES"
     },
     "test": {
         "file_path": "PATH_TO_TEST_FILE",
-        "threshold": 0.4
+        "threshold": 0.45
     }
 }

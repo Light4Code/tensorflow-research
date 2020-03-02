@@ -1,5 +1,6 @@
-import cv2
 import glob
+
+import cv2
 import numpy as np
 
 
@@ -19,7 +20,10 @@ class ImageUtil():
     def load_image(self, image_path, color_mode=-1):
         img = cv2.imread(image_path, color_mode)
         try:
-            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            if color_mode == self.cv2_color:
+                return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            else:
+                return img
         except:
             return None
 

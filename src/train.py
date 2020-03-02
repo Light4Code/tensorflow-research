@@ -1,10 +1,17 @@
-from utils.config import Config
-from utils.image_util import ImageUtil
-from models.anomaly_detection.simple_model import SimpleModel
 import argparse
 import sys
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.optimizers import SGD, Adam
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+from models.anomaly_detection.advanced_model import AdvancedModel
+from models.anomaly_detection.anomaly_vgg16_model import AnomalyVgg16Model
+from models.anomaly_detection.simple_model import SimpleModel
+from utils.config import Config
+from utils.image_util import ImageUtil
 
 
 def main():
@@ -41,6 +48,24 @@ def main():
         type=int,
         help='Overwrites the train epochs'
     )
+    parser.add_argument(
+        "--optimizer",
+        dest='optimizer',
+        metavar="string (e.g. 'adam')",
+        help='Overwrites the train optimizer'
+    )
+    parser.add_argument(
+        "--loss",
+        dest='loss',
+        metavar="string (e.g. 'mse')",
+        help='Overwrites the train loss parameter'
+    )
+    parser.add_argument(
+        "--model",
+        dest='model',
+        metavar="string (e.g. 'advanced')",
+        help='Overwrites the train model'
+    )
 
     args = parser.parse_args()
     config_path = args.config
@@ -50,26 +75,41 @@ def main():
     # Overwrite config
     if args.train_files_path:
         config.train_files_path = args.train_files_path
-    
     if args.test_file_path:
         config.test_file_path = args.test_file_path
-
     if args.test_threshold:
         config.test_threshold = args.test_threshold
-    
     if args.epochs:
         config.epochs = args.epochs
+    if args.optimizer:
+        config.optimizer = args.optimizer
+    if args.loss:
+        config.loss = args.loss
+    if args.model:
+        config.model = args.model
 
     # Load training images
     train_images = load_images(config, image_util)
     train_images = np.array(train_images)
 
+    # Create train generator
+    train_datagen = ImageDataGenerator(
+        rescale = 1./255,
+        horizontal_flip = True,
+        fill_mode = "nearest",
+        zoom_range = 0.3,
+        width_shift_range = 0.3,
+        height_shift_range=0.3,
+        rotation_range=30
+    )
+    train_datagen.fit(train_images)
+
     # ToDo: Create model
     model = create_model(config)
 
     # ToDo: Train model
-    model.fit(train_images, train_images,
-              batch_size=config.batch_size, epochs=config.epochs, shuffle=True)
+    model.fit_generator(train_datagen.flow(train_images, train_images, batch_size=config.batch_size),
+                    steps_per_epoch=len(train_images) / 32, epochs=config.epochs)
 
     # ToDo: Display sample prediction
     if config.test_file_path and config.test_threshold:
@@ -121,10 +161,20 @@ def load_image(path, config, image_util):
 
 
 def create_model(config):
-    model = None
-    model = SimpleModel()
-    model = model.create(learning_rate=config.learning_rate,
-                         input_shape=config.input_shape)
+    if config.model == 'simple':
+        model = SimpleModel().create(input_shape=config.input_shape)
+    elif config.model == 'advanced':
+        model = AdvancedModel().create(input_shape=config.input_shape)
+    elif config.model == 'anomaly_vgg16':
+        model = AnomalyVgg16Model().create(input_shape=config.input_shape)
+    
+    if config.optimizer == 'adam':
+        optimizer = Adam(lr=config.learning_rate)
+    elif config.optimizer == 'sgd':
+        optimizer = SGD(lr=config.learning_rate, momentum=0.9)
+    else:
+        ValueError
+    model.compile(loss=config.loss, optimizer=optimizer)
 
     return model
 
