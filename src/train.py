@@ -9,8 +9,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import *
 
 from models.anomaly_detection.advanced_model import AdvancedModel
-from models.anomaly_detection.simple_model import SimpleModel
-from models.anomaly_detection.oneshot_model import OneShotModel
+from models.anomaly_detection.fast_model import FastModel
 from utils.config import Config
 from utils.image_util import ImageUtil
 
@@ -118,7 +117,7 @@ def main():
 
 def train(config, image_util):
     # Load training images
-    train_images = load_images(config, image_util)
+    train_images = load_images(config.train_files_path, config.input_shape, image_util)
     train_images = np.array(train_images)
 
     # Create train generator
@@ -168,15 +167,15 @@ def train(config, image_util):
         plt.show()
 
 
-def load_images(config, image_util):
-    mode = image_util.get_color_mode(config.input_shape[2])
+def load_images(files_path, input_shape, image_util):
+    mode = image_util.get_color_mode(input_shape[2])
 
-    images = image_util.load_images(config.train_files_path, mode)
+    images = image_util.load_images(files_path, mode)
     resized = []
     for img in images:
         res = image_util.resize_image(
-            img, config.input_shape[1], config.input_shape[0])
-        res = image_util.normalize(res, config.input_shape)
+            img, input_shape[1], input_shape[0])
+        res = image_util.normalize(res, input_shape)
         resized.append(res)
     return resized
 
@@ -202,12 +201,10 @@ def create_optimizer(config):
     return optimizer
 
 def create_model(config):
-    if config.model == 'simple':
-        model_container = SimpleModel(config.learning_rate)
+    if config.model == 'fast':
+        model_container = FastModel(config.learning_rate)
     elif config.model == 'advanced':
         model_container = AdvancedModel(config.learning_rate)
-    elif config.model == 'oneshot':
-        model_container = OneShotModel(config.learning_rate)
 
     model_container.create(input_shape=config.input_shape)
 

@@ -1,7 +1,7 @@
 {
     "input_shape": [512, 512, 3],
     "train": {
-        "model": "simple",
+        "model": "fast",
         "batch_size": 40,
         "epochs": 100,
         "learning_rate": 1e-4,

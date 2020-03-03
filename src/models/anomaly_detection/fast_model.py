@@ -4,7 +4,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 
 
-class SimpleModel():
+class FastModel():
     def __init__(self, learning_rate=1e-4):
         super().__init__()
         self.optimizer_name = 'adam'
