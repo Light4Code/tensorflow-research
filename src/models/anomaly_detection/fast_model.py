@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Flatten, Reshape
+from tensorflow.keras.layers import BatchNormalization, Dense, Flatten, Reshape
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 
@@ -10,15 +10,17 @@ class FastModel():
         self.optimizer_name = 'adam'
         self.optimizer = Adam(lr=learning_rate)
 
-    def create(self, input_shape=(256,256,1)):
+    def create(self, input_shape=(256,256,1), translator_layer_size=100, middle_layer_size=16):
         input_dim = input_shape[0] * input_shape[1] * input_shape[2]
         input = tf.keras.Input(input_shape, name='input_shape')
         x = input
         x = Flatten()(x)
-        x = Dense(input_dim=input_dim, units = 25, activation='relu')(x)
-        x = Dense(units = 3, activation='relu')(x)
-        x = Dense(units = 25, activation='relu')(x)
-        x = Dense(units = input_dim)(x)
+        x = BatchNormalization()(x)
+        x = Dense(translator_layer_size, activation='relu', name='encoder')(x)
+        x = Dense(middle_layer_size, activation='relu')(x)
+        x = BatchNormalization()(x)
+        x = Dense(translator_layer_size, activation='relu', name='decoder')(x)
+        x = Dense(input_dim, activation='sigmoid', name='reconstructor')(x)
         x = Reshape(input_shape)(x)
         
         self.model = Model(input, x)
