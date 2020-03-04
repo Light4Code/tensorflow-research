@@ -54,7 +54,7 @@ class AdvancedModel():
   def train(self, config, train_images, train_datagen):
       if config.image_data_generator:
           self.autoencoder.fit(train_datagen.flow(train_images, train_images, batch_size=config.batch_size),
-                              epochs=config.epochs, steps_per_epoch=len(train_images) / config.batch_size)
+                              epochs=config.epochs, steps_per_epoch=len(train_images) / config.batch_size, validation_split=0.1)
       else:
           self.autoencoder.fit(train_images, train_images,
                     batch_size=config.batch_size, epochs=config.epochs)

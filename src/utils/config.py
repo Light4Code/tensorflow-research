@@ -18,6 +18,11 @@ class Config():
             self.optimizer = self.train['optimizer']
 
             try:
+                self.train_mask_files_path = self.train['mask_files_path']
+            except:
+                self.train_mask_files_path = None
+                
+            try:
                 self.image_data_generator = self.train['image_data_generator']
                 self.image_data_generator_horizonal_flip = self.image_data_generator['horizontal_flip']
                 self.image_data_generator_zoom_range = self.image_data_generator['zoom_range']

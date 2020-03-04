@@ -1,0 +1,24 @@
+{
+    "input_shape": [512, 512, 1],
+    "train": {
+        "model": "small_unet",
+        "batch_size": 10,
+        "epochs": 100,
+        "learning_rate": 1e-4,
+        "loss": "",
+        "optimizer": "",
+        "files_path": "PATH_TO_TRAINING_FILES",
+        "mask_files_path": "PATH_TO_TRAINING_MASK_FILES",
+        "image_data_generator": {
+            "horizontal_flip": true,
+            "zoom_range": 0,
+            "width_shift_range": 0,
+            "height_shift_range": 0,
+            "rotation_range": 10
+        }
+    },
+    "test": {
+        "file_path": "PATH_TO_TEST_FILE",
+        "threshold": 0.45
+    }
+}

@@ -10,6 +10,7 @@ from tensorflow.keras.utils import *
 
 from models.anomaly_detection.advanced_model import AdvancedModel
 from models.anomaly_detection.fast_model import FastModel
+from models.anomaly_detection.small_unet_model import SmallUnetModel
 from utils.config import Config
 from utils.image_util import ImageUtil
 import os
@@ -29,6 +30,12 @@ def main():
         dest='train_files_path',
         metavar="path",
         help='Overwrites the path included in the config to the training files'
+    )
+    parser.add_argument(
+        "--train_mask_files_path",
+        dest='train_mask_files_path',
+        metavar="path",
+        help='Overwrites the path included in the config to the training mask files'
     )
     parser.add_argument(
         "--test_file_path",
@@ -91,6 +98,8 @@ def main():
     # Overwrite config
     if args.train_files_path:
         config.train_files_path = args.train_files_path
+    if args.train_mask_files_path:
+        config.train_mask_files_path = args.train_mask_files_path
     if args.test_file_path:
         config.test_file_path = args.test_file_path
     if args.test_threshold:
@@ -129,6 +138,13 @@ def train(config, image_util):
     train_images = load_images(config.train_files_path, config.input_shape, image_util)
     train_images = np.array(train_images)
 
+    train_mask_images = []
+    # Load training mask images
+    if config.train_mask_files_path:
+        train_mask_images = load_images(config.train_mask_files_path, config.input_shape, image_util)
+        train_mask_images = np.array(train_mask_images)
+
+    train_datagen = None
     # Create train generator
     if config.image_data_generator:
         train_datagen = ImageDataGenerator(
@@ -139,13 +155,15 @@ def train(config, image_util):
             height_shift_range=config.image_data_generator_height_shift_range,
             rotation_range=config.image_data_generator_rotation_range
         )
-        train_datagen.fit(train_images)
 
     # ToDo: Create model
     model = create_model(config)
 
     # ToDo: Train model
-    model.train(config, train_images, train_datagen)
+    if len(train_mask_images) > 0:
+        model.train(config, train_images, train_datagen, train_mask_images)
+    else:
+        model.train(config, train_images, train_datagen)
 
     # ToDo: Display sample prediction
     if config.test_file_path and config.test_threshold:
@@ -214,6 +232,8 @@ def create_model(config):
         model_container = FastModel(config.learning_rate)
     elif config.model == 'advanced':
         model_container = AdvancedModel(config.learning_rate)
+    elif config.model == 'small_unet':
+        model_container = SmallUnetModel(config.learning_rate)
 
     model_container.create(config=config)
 
