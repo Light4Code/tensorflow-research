@@ -12,6 +12,8 @@ from models.anomaly_detection.advanced_model import AdvancedModel
 from models.anomaly_detection.fast_model import FastModel
 from utils.config import Config
 from utils.image_util import ImageUtil
+import os
+import random
 
 
 def main():
@@ -105,6 +107,13 @@ def main():
         config.batch_size = args.batch_size
     if args.learning_rate:
         config.learning_rate = args.learning_rate
+
+    # Set seed to get reproducable experiments
+    seed_value = 33
+    os.environ['PYTHONHASHSEED']=str(seed_value)
+    random.seed(seed_value)
+    np.random.seed(seed_value)
+    tf.random.set_seed(seed_value)
 
     physical_devices = tf.config.list_physical_devices('GPU') 
     try: 
@@ -206,7 +215,7 @@ def create_model(config):
     elif config.model == 'advanced':
         model_container = AdvancedModel(config.learning_rate)
 
-    model_container.create(input_shape=config.input_shape)
+    model_container.create(config=config)
 
     if config.optimizer and config.optimizer != model_container.optimizer_name:
         optimizer = create_optimizer(config)

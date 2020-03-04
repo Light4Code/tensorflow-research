@@ -10,7 +10,17 @@ class FastModel():
         self.optimizer_name = 'adam'
         self.optimizer = Adam(lr=learning_rate)
 
-    def create(self, input_shape=(256,256,1), translator_layer_size=100, middle_layer_size=16):
+    def create(self, config):
+        input_shape = config.input_shape
+
+        try:
+            fast_model = config.train['fast_model']
+            translator_layer_size = fast_model['translator_layer_size']
+            middle_layer_size = fast_model['middle_layer_size']
+        except:
+            translator_layer_size = 100
+            middle_layer_size = 16
+
         input_dim = input_shape[0] * input_shape[1] * input_shape[2]
         input = tf.keras.Input(input_shape, name='input_shape')
         x = input
