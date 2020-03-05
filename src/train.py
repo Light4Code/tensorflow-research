@@ -1,4 +1,6 @@
 import argparse
+import os
+import random
 import sys
 
 import matplotlib.pyplot as plt
@@ -13,8 +15,6 @@ from models.anomaly_detection.fast_model import FastModel
 from models.anomaly_detection.small_unet_model import SmallUnetModel
 from utils.config import Config
 from utils.image_util import ImageUtil
-import os
-import random
 
 
 def main():
@@ -72,7 +72,7 @@ def main():
     parser.add_argument(
         "--model",
         dest='model',
-        metavar="string (e.g. 'advanced')",
+        metavar="string (e.g. 'small', 'advanced', 'small_unet')",
         help='Overwrites the train model'
     )
     parser.add_argument(

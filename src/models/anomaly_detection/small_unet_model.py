@@ -1,10 +1,12 @@
 # implementation from: 
 # https://github.com/Tony607/Industrial-Defect-Inspection-segmentation
 from tensorflow.keras import Input
-from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, Lambda, Conv2DTranspose, concatenate
-from tensorflow.keras.models import Model
 from tensorflow.keras import backend as K
+from tensorflow.keras.layers import (Conv2D, Conv2DTranspose, Input, Lambda,
+                                     MaxPooling2D, UpSampling2D, concatenate)
+from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
+
 
 def smooth_dice_coeff(smooth=1.):
     smooth = float(smooth)
@@ -32,7 +34,6 @@ class SmallUnetModel():
     def create(self, config):
         input_shape = config.input_shape
         inputs = Input(shape=input_shape)
-        inputs_norm = Lambda(lambda x: x/127.5 - 1.)
         conv1 = Conv2D(16, (3, 3), activation='relu', padding='same')(inputs)
         conv1 = Conv2D(16, (3, 3), activation='relu', padding='same')(conv1)
         pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
