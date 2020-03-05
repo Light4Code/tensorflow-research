@@ -89,10 +89,11 @@ class SmallUnetModel():
             self.model.load_weights(config.checkpoint_path)
 
         callbacks = []
-        callbacks.append(ModelCheckpoint(config.checkpoints_path + '/model-{epoch:04d}.ckpts', 
-                                save_freq=config.checkpoint_save_period * len(train_images), 
-                                save_weights_only=True,
-                                save_best_only=config.checkpoint_save_best_only))
+        if config.checkpoints_path:
+            callbacks.append(ModelCheckpoint(config.checkpoints_path + '/model-{epoch:04d}.ckpts', 
+                                    save_freq=config.checkpoint_save_period * len(train_images), 
+                                    save_weights_only=True,
+                                    save_best_only=config.checkpoint_save_best_only))
 
         if config.image_data_generator:
             self.model.fit(train_datagen.flow(train_images, train_mask_images, batch_size=config.batch_size, seed=33),

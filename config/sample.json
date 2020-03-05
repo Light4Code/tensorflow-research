@@ -11,6 +11,7 @@
         "checkpoints_path": "PATH_THE_CHECKPOINTS_SHOULD_BE_SAVED",
         "checkpoint_save_period": 10,
         "checkpoint_path": "PATH_TO_THE_CHECKPOINT_TO_CONTINUE_TRAINING",
+        "checkpoint_save_best_only": false,
         "image_data_generator": {
             "horizontal_flip": true,
             "featurewise_center": false,

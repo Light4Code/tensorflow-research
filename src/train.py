@@ -89,6 +89,12 @@ def main():
         type=float,
         help='Overwrites the learning rate'
     )
+    parser.add_argument(
+        "--checkpoint_path",
+        dest='checkpoint_path',
+        metavar="path",
+        help='Overwrites the path to the saved checkpoint containing the model weights'
+    )
 
     args = parser.parse_args()
     config_path = args.config
@@ -116,6 +122,8 @@ def main():
         config.batch_size = args.batch_size
     if args.learning_rate:
         config.learning_rate = args.learning_rate
+    if args.checkpoint_path:
+        config.checkpoint_path = args.checkpoint_path
 
     # Set seed to get reproducable experiments
     seed_value = 33
