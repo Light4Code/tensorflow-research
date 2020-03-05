@@ -14,12 +14,15 @@ class Config():
             self.batch_size = self.train['batch_size']
             self.epochs = self.train['epochs']
             self.learning_rate = self.train['learning_rate']
-            self.loss = self.train['loss']
-            self.optimizer = self.train['optimizer']
             self.checkpoints_path = self.train['checkpoints_path']
             self.checkpoint_save_period = self.train['checkpoint_save_period']
             self.checkpoint_path = self.train['checkpoint_path']
             self.checkpoint_save_best_only = self.train['checkpoint_save_best_only']
+
+            try:
+                self.loss = self.train['loss']
+            except:
+                self.loss = None
 
             try:
                 self.train_mask_files_path = self.train['mask_files_path']

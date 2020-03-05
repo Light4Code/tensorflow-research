@@ -58,12 +58,6 @@ def main():
         help='Overwrites the train epochs'
     )
     parser.add_argument(
-        "--optimizer",
-        dest='optimizer',
-        metavar="string (e.g. 'adam')",
-        help='Overwrites the train optimizer'
-    )
-    parser.add_argument(
         "--loss",
         dest='loss',
         metavar="string (e.g. 'mse')",
@@ -112,8 +106,6 @@ def main():
         config.test_threshold = args.test_threshold
     if args.epochs:
         config.epochs = args.epochs
-    if args.optimizer:
-        config.optimizer = args.optimizer
     if args.loss:
         config.loss = args.loss
     if args.model:
@@ -142,121 +134,50 @@ def main():
 
 
 def train(config, image_util):
-    # Load training images
-    train_images = load_images(config.train_files_path, config.input_shape, image_util)
-    train_images = np.array(train_images)
-
-    train_mask_images = []
-    # Load training mask images
-    if config.train_mask_files_path:
-        train_mask_images = load_images(config.train_mask_files_path, config.input_shape, image_util)
-        train_mask_images = np.array(train_mask_images)
-
-    train_datagen = None
-    # Create train generator
-    if config.image_data_generator:
-        train_datagen = ImageDataGenerator(
-            horizontal_flip=config.image_data_generator_horizonal_flip,
-            featurewise_center=config.image_data_generator_featurewise_center,
-            featurewise_std_normalization=config.image_data_generator_featurewise_std_normalization,
-            fill_mode="nearest",
-            zoom_range=config.image_data_generator_zoom_range,
-            width_shift_range=config.image_data_generator_width_shift_range,
-            height_shift_range=config.image_data_generator_height_shift_range,
-            rotation_range=config.image_data_generator_rotation_range
-        )
-        train_datagen.fit(train_images, augment=False, seed=33)
-
-
     # ToDo: Create model
     model = create_model(config)
+    model.prepare_training()
 
     # ToDo: Train model
-    if len(train_mask_images) > 0:
-        model.train(config, train_images, train_datagen, train_mask_images)
-    else:
-        model.train(config, train_images, train_datagen)
+    model.train()
 
-    # ToDo: Display sample prediction
-    if config.test_file_path and config.test_threshold:
-        test_image = load_image(config.test_file_path, config, image_util)
-        test_images = np.array([test_image])
-        prediction = model.predict(test_images)
+    # # ToDo: Display sample prediction
+    # if config.test_file_path and config.test_threshold:
+    #     test_image = load_image(config.test_file_path, config, image_util)
+    #     test_images = np.array([test_image])
+    #     prediction = model.predict(test_images)
 
-        plt_shape = (config.input_shape[0], config.input_shape[1])
-        plt_cmap = 'gray'
-        if config.input_shape[2] > 1:
-            plt_shape = (
-                config.input_shape[0], config.input_shape[1], config.input_shape[2])
+    #     plt_shape = (config.input_shape[0], config.input_shape[1])
+    #     plt_cmap = 'gray'
+    #     if config.input_shape[2] > 1:
+    #         plt_shape = (
+    #             config.input_shape[0], config.input_shape[1], config.input_shape[2])
 
-        plt.subplot(221)
-        plt.title('Input image')
-        plt.imshow(test_image.reshape(plt_shape), cmap=plt_cmap)
-        plt.subplot(222)
-        plt.title('Prediction image')
-        plt.imshow(prediction.reshape(plt_shape), cmap=plt_cmap)
-        plt.subplot(223)
-        plt.title('Difference image (before threshold)')
-        diff = image_util.create_diff(test_image, prediction)
-        plt.imshow(diff.reshape(plt_shape), cmap=plt_cmap)
-        plt.subplot(224)
-        plt.title('Result image (after threshold)')
-        plt.imshow(image_util.apply_threshold(
-            diff, config.test_threshold).reshape(plt_shape), cmap=plt_cmap)
-        plt.show()
-
-
-def load_images(files_path, input_shape, image_util):
-    mode = image_util.get_color_mode(input_shape[2])
-
-    images = image_util.load_images(files_path, mode)
-    resized = []
-    for img in images:
-        res = image_util.resize_image(
-            img, input_shape[1], input_shape[0])
-        res = image_util.normalize(res, input_shape)
-        resized.append(res)
-    return resized
-
-
-def load_image(path, config, image_util):
-    mode = image_util.get_color_mode(config.input_shape[2])
-    image = image_util.load_image(path, mode)
-    resized = image_util.resize_image(
-        image, config.input_shape[1], config.input_shape[0])
-    resized = image_util.normalize(resized, config.input_shape)
-    return resized
-
-def create_optimizer(config):
-    if config.optimizer == 'adam':
-        optimizer = Adam(lr=config.learning_rate)
-    elif config.optimizer == 'sgd':
-        optimizer = SGD(lr=config.learning_rate, momentum=0.9)
-    elif config.optimizer == 'rmsprop':
-        optimizer = RMSprop(lr=config.learning_rate)
-        config.loss = ''
-    else:
-        ValueError
-    return optimizer
+    #     plt.subplot(221)
+    #     plt.title('Input image')
+    #     plt.imshow(test_image.reshape(plt_shape), cmap=plt_cmap)
+    #     plt.subplot(222)
+    #     plt.title('Prediction image')
+    #     plt.imshow(prediction.reshape(plt_shape), cmap=plt_cmap)
+    #     plt.subplot(223)
+    #     plt.title('Difference image (before threshold)')
+    #     diff = image_util.create_diff(test_image, prediction)
+    #     plt.imshow(diff.reshape(plt_shape), cmap=plt_cmap)
+    #     plt.subplot(224)
+    #     plt.title('Result image (after threshold)')
+    #     plt.imshow(image_util.apply_threshold(
+    #         diff, config.test_threshold).reshape(plt_shape), cmap=plt_cmap)
+    #     plt.show()
 
 def create_model(config):
     if config.model == 'fast':
-        model_container = FastModel(config.learning_rate)
+        model_container = FastModel(config)
     elif config.model == 'advanced':
-        model_container = AdvancedModel(config.learning_rate)
+        model_container = AdvancedModel(config)
     elif config.model == 'small_unet':
-        model_container = SmallUnetModel(config.learning_rate)
-
-    model_container.create(config=config)
-
-    if config.optimizer and config.optimizer != model_container.optimizer_name:
-        optimizer = create_optimizer(config)
-        model_container.overwrite_optimizer(optimizer)
-    
-    if config.loss:
-        model_container.compile(config.loss)
+        model_container = SmallUnetModel(config)
     else:
-        model_container.compile()
+        TypeError
 
     return model_container
 

@@ -6,16 +6,18 @@ from tensorflow.keras.layers import (Activation, BatchNormalization, Conv2D,
                                      LeakyReLU, Reshape)
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
+from models.base_model import BaseModel
 
+class AdvancedModel(BaseModel):
+  def __init__(self, config):
+    super().__init__(config)
 
-class AdvancedModel():
-  def __init__(self, learning_rate=1e-4):
-    super().__init__()
-    self.optimizer_name = 'adma'
-    self.optimizer = Adam(lr=learning_rate)
+  def create_optimizer(self):
+      self.optimizer_name = 'adma'
+      self.optimizer = Adam(lr=self.config.learning_rate)
 
-  def create(self, config, filters=(32, 64), latent_dim=16):
-      input_shape = config.input_shape
+  def create_model(self, filters=(32, 64), latent_dim=16):
+      input_shape = self.config.input_shape
       inputs = Input(shape=input_shape)
       x = inputs
       for f in filters:
@@ -40,25 +42,14 @@ class AdvancedModel():
       decoder = Model(latent_inputs, outputs, name='decoder')
       print(decoder.summary())
 
-      self.autoencoder = Model(inputs, decoder(encoder(inputs)), name='autoencoder')
-      print(self.autoencoder.summary())
-      return self.autoencoder
+      self.model = Model(inputs, decoder(encoder(inputs)), name='autoencoder')
+      print(self.model.summary())
+      return self.model
 
   def overwrite_optimizer(self, optimizer, optimizer_name):
       self.optimzer = optimizer
       self.optimizer_name = optimizer_name
 
   def compile(self, loss='mse'):
-      self.autoencoder.compile(loss=loss, optimizer=self.optimizer, metrics=['accuracy'])
-    
-  def train(self, config, train_images, train_datagen):
-      if config.image_data_generator:
-          self.autoencoder.fit(train_datagen.flow(train_images, train_images, batch_size=config.batch_size),
-                              epochs=config.epochs, steps_per_epoch=len(train_images) / config.batch_size, validation_split=0.1)
-      else:
-          self.autoencoder.fit(train_images, train_images,
-                    batch_size=config.batch_size, epochs=config.epochs)
-  
-  def predict(self, test_images):
-      return self.autoencoder.predict(test_images, batch_size=len(test_images))
+      self.model.compile(loss=loss, optimizer=self.optimizer, metrics=['accuracy'])
     

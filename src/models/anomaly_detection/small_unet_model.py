@@ -2,11 +2,13 @@
 # https://github.com/Tony607/Industrial-Defect-Inspection-segmentation
 from tensorflow.keras import Input
 from tensorflow.keras import backend as K
-from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.layers import (Conv2D, Conv2DTranspose, Input, Lambda,
                                      MaxPooling2D, UpSampling2D, concatenate)
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
+import os, sys
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from models.base_model import BaseModel
 
 
 def smooth_dice_coeff(smooth=1.):
@@ -26,14 +28,16 @@ def smooth_dice_coeff(smooth=1.):
 
 IOU_calc, IOU_calc_loss = smooth_dice_coeff(0.00001)
 
-class SmallUnetModel():
-    def __init__(self, learning_rate=1e-4):
-        super().__init__()
-        self.optimizer_name = 'adam'
-        self.optimizer = Adam(lr=learning_rate)
+class SmallUnetModel(BaseModel):
+    def __init__(self, config):
+        super().__init__(config)
 
-    def create(self, config):
-        input_shape = config.input_shape
+    def create_optimizer(self):
+        self.optimizer_name = 'adam'
+        self.optimizer = Adam(lr=self.config.learning_rate)
+
+    def create_model(self):
+        input_shape = self.config.input_shape
         inputs = Input(shape=input_shape)
         conv1 = Conv2D(16, (3, 3), activation='relu', padding='same')(inputs)
         conv1 = Conv2D(16, (3, 3), activation='relu', padding='same')(conv1)
@@ -81,32 +85,4 @@ class SmallUnetModel():
         return self.model
 
     def compile(self, loss=''):
-      self.model.compile(optimizer=self.optimizer, loss=IOU_calc_loss, metrics=[IOU_calc])
-    
-    def train(self, config, train_images, train_datagen, train_mask_images):
-
-        if config.checkpoint_path:
-            self.model.load_weights(config.checkpoint_path)
-
-        callbacks = []
-        if config.checkpoints_path:
-            callbacks.append(ModelCheckpoint(config.checkpoints_path + '/model-{epoch:04d}.ckpts', 
-                                    save_freq=config.checkpoint_save_period * len(train_images), 
-                                    save_weights_only=True,
-                                    save_best_only=config.checkpoint_save_best_only))
-
-        if config.image_data_generator:
-            self.model.fit(train_datagen.flow(train_images, train_mask_images, batch_size=config.batch_size, seed=33),
-                                epochs=config.epochs, 
-                                steps_per_epoch=len(train_images) / config.batch_size, 
-                                callbacks=callbacks,
-                                shuffle=True)
-        else:
-            self.model.fit(train_images, train_mask_images,
-                        batch_size=config.batch_size, 
-                        epochs=config.epochs,
-                        callbacks=callbacks,
-                        shuffle=True)
-
-    def predict(self, test_images):
-      return self.model.predict(test_images, batch_size=len(test_images))
+        self.model.compile(optimizer=self.optimizer, loss=IOU_calc_loss, metrics=[IOU_calc])
