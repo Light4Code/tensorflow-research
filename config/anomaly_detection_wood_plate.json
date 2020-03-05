@@ -11,6 +11,8 @@
         "mask_files_path": "PATH_TO_TRAINING_MASK_FILES",
         "image_data_generator": {
             "horizontal_flip": true,
+            "featurewise_center": false,
+            "featurewise_std_normalization": false,
             "zoom_range": 0,
             "width_shift_range": 0,
             "height_shift_range": 0,

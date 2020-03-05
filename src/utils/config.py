@@ -19,6 +19,7 @@ class Config():
             self.checkpoints_path = self.train['checkpoints_path']
             self.checkpoint_save_period = self.train['checkpoint_save_period']
             self.checkpoint_path = self.train['checkpoint_path']
+            self.checkpoint_save_best_only = self.train['checkpoint_save_best_only']
 
             try:
                 self.train_mask_files_path = self.train['mask_files_path']
@@ -32,6 +33,8 @@ class Config():
                 self.image_data_generator_width_shift_range = self.image_data_generator['width_shift_range']
                 self.image_data_generator_height_shift_range = self.image_data_generator['height_shift_range']
                 self.image_data_generator_rotation_range = self.image_data_generator['rotation_range']
+                self.image_data_generator_featurewise_center = self.image_data_generator['featurewise_center']
+                self.image_data_generator_featurewise_std_normalization = self.image_data_generator['featurewise_std_normalization']
             except:
                 self.image_data_generator = None
                 self.image_data_generator_horizonal_flip = None
@@ -39,6 +42,7 @@ class Config():
                 self.image_data_generator_width_shift_range = None
                 self.image_data_generator_height_shift_range = None
                 self.image_data_generator_rotation_range = None
+                self.image_data_generator_featurewise_center = None
 
             try:
                 test = data['test']

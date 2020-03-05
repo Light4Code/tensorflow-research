@@ -149,12 +149,16 @@ def train(config, image_util):
     if config.image_data_generator:
         train_datagen = ImageDataGenerator(
             horizontal_flip=config.image_data_generator_horizonal_flip,
+            featurewise_center=config.image_data_generator_featurewise_center,
+            featurewise_std_normalization=config.image_data_generator_featurewise_std_normalization,
             fill_mode="nearest",
             zoom_range=config.image_data_generator_zoom_range,
             width_shift_range=config.image_data_generator_width_shift_range,
             height_shift_range=config.image_data_generator_height_shift_range,
             rotation_range=config.image_data_generator_rotation_range
         )
+        train_datagen.fit(train_images, augment=False, seed=33)
+
 
     # ToDo: Create model
     model = create_model(config)

@@ -84,24 +84,28 @@ class SmallUnetModel():
       self.model.compile(optimizer=self.optimizer, loss=IOU_calc_loss, metrics=[IOU_calc])
     
     def train(self, config, train_images, train_datagen, train_mask_images):
+
         if config.checkpoint_path:
             self.model.load_weights(config.checkpoint_path)
 
         callbacks = []
         callbacks.append(ModelCheckpoint(config.checkpoints_path + '/model-{epoch:04d}.ckpts', 
                                 save_freq=config.checkpoint_save_period * len(train_images), 
-                                save_weights_only=True))
+                                save_weights_only=True,
+                                save_best_only=config.checkpoint_save_best_only))
 
         if config.image_data_generator:
-            self.model.fit(train_datagen.flow(train_images, train_mask_images, batch_size=config.batch_size),
+            self.model.fit(train_datagen.flow(train_images, train_mask_images, batch_size=config.batch_size, seed=33),
                                 epochs=config.epochs, 
                                 steps_per_epoch=len(train_images) / config.batch_size, 
-                                callbacks=callbacks)
+                                callbacks=callbacks,
+                                shuffle=True)
         else:
             self.model.fit(train_images, train_mask_images,
                         batch_size=config.batch_size, 
                         epochs=config.epochs,
-                        callbacks=callbacks)
+                        callbacks=callbacks,
+                        shuffle=True)
 
     def predict(self, test_images):
       return self.model.predict(test_images, batch_size=len(test_images))
