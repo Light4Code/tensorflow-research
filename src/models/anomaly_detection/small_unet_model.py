@@ -2,6 +2,7 @@
 # https://github.com/Tony607/Industrial-Defect-Inspection-segmentation
 from tensorflow.keras import Input
 from tensorflow.keras import backend as K
+from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.layers import (Conv2D, Conv2DTranspose, Input, Lambda,
                                      MaxPooling2D, UpSampling2D, concatenate)
 from tensorflow.keras.models import Model
@@ -83,12 +84,24 @@ class SmallUnetModel():
       self.model.compile(optimizer=self.optimizer, loss=IOU_calc_loss, metrics=[IOU_calc])
     
     def train(self, config, train_images, train_datagen, train_mask_images):
-      if config.image_data_generator:
-          self.model.fit(train_datagen.flow(train_images, train_mask_images, batch_size=config.batch_size),
-                            epochs=config.epochs, steps_per_epoch=len(train_images) / config.batch_size)
-      else:
-          self.model.fit(train_images, train_mask_images,
-                    batch_size=config.batch_size, epochs=config.epochs)
+        if config.checkpoint_path:
+            self.model.load_weights(config.checkpoint_path)
+
+        callbacks = []
+        callbacks.append(ModelCheckpoint(config.checkpoints_path + '/model-{epoch:04d}.ckpts', 
+                                save_freq=config.checkpoint_save_period * len(train_images), 
+                                save_weights_only=True))
+
+        if config.image_data_generator:
+            self.model.fit(train_datagen.flow(train_images, train_mask_images, batch_size=config.batch_size),
+                                epochs=config.epochs, 
+                                steps_per_epoch=len(train_images) / config.batch_size, 
+                                callbacks=callbacks)
+        else:
+            self.model.fit(train_images, train_mask_images,
+                        batch_size=config.batch_size, 
+                        epochs=config.epochs,
+                        callbacks=callbacks)
 
     def predict(self, test_images):
       return self.model.predict(test_images, batch_size=len(test_images))

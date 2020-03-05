@@ -16,6 +16,9 @@ class Config():
             self.learning_rate = self.train['learning_rate']
             self.loss = self.train['loss']
             self.optimizer = self.train['optimizer']
+            self.checkpoints_path = self.train['checkpoints_path']
+            self.checkpoint_save_period = self.train['checkpoint_save_period']
+            self.checkpoint_path = self.train['checkpoint_path']
 
             try:
                 self.train_mask_files_path = self.train['mask_files_path']
