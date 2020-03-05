@@ -28,7 +28,7 @@ IOU_calc, IOU_calc_loss = smooth_dice_coeff(0.00001)
 class SmallUnetModel():
     def __init__(self, learning_rate=1e-4):
         super().__init__()
-        self.optimizer_name = 'adma'
+        self.optimizer_name = 'adam'
         self.optimizer = Adam(lr=learning_rate)
 
     def create(self, config):
