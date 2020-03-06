@@ -124,7 +124,12 @@ class SmallUnetModel(BaseModel):
 
         return self.model
 
-    def compile(self, loss=""):
-        self.model.compile(
-            optimizer=self.optimizer, loss=IOU_calc_loss, metrics=[IOU_calc]
-        )
+    def compile(self, loss=None):
+        if loss:
+            self.model.compile(
+                optimizer=self.optimizer, loss=loss, metrics=[IOU_calc],
+            )
+        else:
+            self.model.compile(
+                optimizer=self.optimizer, loss=IOU_calc_loss, metrics=[IOU_calc]
+            )

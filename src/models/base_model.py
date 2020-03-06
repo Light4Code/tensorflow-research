@@ -4,13 +4,14 @@ import re
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.ma as ma
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from utils.config import Config
 from utils.image_util import ImageUtil
-import numpy.ma as ma
+
 
 
 class BaseModel:
