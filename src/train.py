@@ -6,16 +6,9 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.optimizers import SGD, Adam, RMSprop
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.utils import *
 
-from models.anomaly_detection.advanced_model import AdvancedModel
-from models.anomaly_detection.fast_model import FastModel
-from models.anomaly_detection.satellite_unet_model import SatelliteUnetModel
-from models.anomaly_detection.small_unet_model import SmallUnetModel
 from utils.config import Config
-from utils.image_util import ImageUtil
+from utils.model_creater import create_model
 
 
 def main():
@@ -94,7 +87,6 @@ def main():
     args = parser.parse_args()
     config_path = args.config
     config = Config(config_path)
-    image_util = ImageUtil()
 
     # Overwrite config
     if args.train_files_path:
@@ -131,58 +123,13 @@ def main():
     except: 
         # Invalid device or cannot modify virtual devices once initialized. 
         pass 
-    train(config, image_util)
 
-
-def train(config, image_util):
     # ToDo: Create model
     model = create_model(config)
 
     # ToDo: Train model
     model.train()
-
-    # # ToDo: Display sample prediction
-    # if config.test_file_path and config.test_threshold:
-    #     test_image = load_image(config.test_file_path, config, image_util)
-    #     test_images = np.array([test_image])
-    #     prediction = model.predict(test_images)
-
-    #     plt_shape = (config.input_shape[0], config.input_shape[1])
-    #     plt_cmap = 'gray'
-    #     if config.input_shape[2] > 1:
-    #         plt_shape = (
-    #             config.input_shape[0], config.input_shape[1], config.input_shape[2])
-
-    #     plt.subplot(221)
-    #     plt.title('Input image')
-    #     plt.imshow(test_image.reshape(plt_shape), cmap=plt_cmap)
-    #     plt.subplot(222)
-    #     plt.title('Prediction image')
-    #     plt.imshow(prediction.reshape(plt_shape), cmap=plt_cmap)
-    #     plt.subplot(223)
-    #     plt.title('Difference image (before threshold)')
-    #     diff = image_util.create_diff(test_image, prediction)
-    #     plt.imshow(diff.reshape(plt_shape), cmap=plt_cmap)
-    #     plt.subplot(224)
-    #     plt.title('Result image (after threshold)')
-    #     plt.imshow(image_util.apply_threshold(
-    #         diff, config.test_threshold).reshape(plt_shape), cmap=plt_cmap)
-    #     plt.show()
-
-def create_model(config):
-    if config.model == 'fast':
-        model_container = FastModel(config)
-    elif config.model == 'advanced':
-        model_container = AdvancedModel(config)
-    elif config.model == 'small_unet':
-        model_container = SmallUnetModel(config)
-    elif config.model == 'satellite_unet':
-        model_container = SatelliteUnetModel(config)
-    else:
-        TypeError
-
-    return model_container
-
+    
 
 if __name__ == '__main__':
     main()

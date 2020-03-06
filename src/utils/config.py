@@ -49,8 +49,11 @@ class Config():
 
             try:
                 test = data['test']
-                self.test_file_path = test['file_path']
-                self.test_threshold = test['threshold']
+                self.test_files_path = test['files_path']
+                try:
+                    self.test_threshold = test['threshold']
+                except:
+                    self.test_threshold = None
             except:
-                self.test_file_path = None
+                self.test_files_path = None
                 self.test_threshold = None
