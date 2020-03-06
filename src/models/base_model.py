@@ -1,4 +1,6 @@
 import abc
+import os
+import re
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -48,8 +50,16 @@ class BaseModel():
                                                   save_best_only=self.config.checkpoint_save_best_only))
 
     def load_weights(self):
+        self.initial_epoch = 0
         if self.config.checkpoint_path:
             self.model.load_weights(self.config.checkpoint_path)
+            try:
+                checkpoint_name = os.path.basename(self.config.checkpoint_path)
+                last_epoch = re.findall(r'\b\d+\b', checkpoint_name)[0]
+                self.initial_epoch = int(last_epoch)
+                self.config.epochs += self.initial_epoch
+            except:
+                print("Could not read checkpoint epoch information, will continue with epoch 0!")
 
     def train(self):
         if self.train_datagen:
@@ -58,13 +68,15 @@ class BaseModel():
                            steps_per_epoch=len(
                                self.train_images) / self.config.batch_size,
                            callbacks=self.callbacks,
-                           shuffle=True)
+                           shuffle=True,
+                           initial_epoch=self.initial_epoch)
         else:
             self.model.fit(self.train_images, self.y_train,
                            batch_size=self.config.batch_size,
                            epochs=self.config.epochs,
                            callbacks=self.callbacks,
-                           shuffle=True)
+                           shuffle=True,
+                           initial_epoch=self.initial_epoch)
 
     def predict(self, test_images):
         self.predictions = []
