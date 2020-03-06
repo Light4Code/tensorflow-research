@@ -26,7 +26,7 @@
         }
     },
     "test": {
-        "file_path": "PATH_TO_TEST_FILE",
+        "files_path": "PATH_TO_TEST_FILE",
         "threshold": 0.45
     }
 }

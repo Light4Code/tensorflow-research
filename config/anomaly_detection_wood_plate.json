@@ -13,7 +13,6 @@
         "checkpoint_save_best_only": false
     },
     "test": {
-        "file_path": "PATH_TO_TEST_FILE",
-        "threshold": 0.45
+        "files_path": "PATH_TO_TEST_FILE"
     }
 }
