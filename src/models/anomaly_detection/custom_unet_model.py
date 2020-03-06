@@ -1,9 +1,17 @@
 # https://github.com/karolzak/keras-unet
 import tensorflow as tf
-from tensorflow.keras.layers import (Activation, BatchNormalization, Conv2D,
-                                     Conv2DTranspose, Dropout, Input,
-                                     MaxPooling2D, SpatialDropout2D,
-                                     UpSampling2D, concatenate)
+from tensorflow.keras.layers import (
+    Activation,
+    BatchNormalization,
+    Conv2D,
+    Conv2DTranspose,
+    Dropout,
+    Input,
+    MaxPooling2D,
+    SpatialDropout2D,
+    UpSampling2D,
+    concatenate,
+)
 from tensorflow.keras.models import Model
 
 

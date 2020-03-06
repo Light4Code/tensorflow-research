@@ -5,13 +5,13 @@ from models.anomaly_detection.small_unet_model import SmallUnetModel
 
 
 def create_model(config):
-    if config.model == 'fast':
+    if config.model == "fast":
         model_container = FastModel(config)
-    elif config.model == 'advanced':
+    elif config.model == "advanced":
         model_container = AdvancedModel(config)
-    elif config.model == 'small_unet':
+    elif config.model == "small_unet":
         model_container = SmallUnetModel(config)
-    elif config.model == 'satellite_unet':
+    elif config.model == "satellite_unet":
         model_container = SatelliteUnetModel(config)
     else:
         TypeError

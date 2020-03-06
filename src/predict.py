@@ -9,29 +9,30 @@ from utils.model_creater import create_model
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Used to predict TensorFlow model checkpoint')
+        description="Used to predict TensorFlow model checkpoint"
+    )
     parser.add_argument(
-        'config',
+        "config",
         metavar="config",
-        help='Path to the configuration file containing all parameters for model training'
+        help="Path to the configuration file containing all parameters for model training",
     )
     parser.add_argument(
         "--test_files_path",
-        dest='test_files_path',
+        dest="test_files_path",
         metavar="path",
-        help='Path to the test files that should be predicted'
+        help="Path to the test files that should be predicted",
     )
     parser.add_argument(
         "--model",
-        dest='model',
+        dest="model",
         metavar="string (e.g. 'small', 'advanced', 'small_unet')",
-        help='Overwrites the train model'
+        help="Overwrites the train model",
     )
     parser.add_argument(
         "--checkpoint_path",
-        dest='checkpoint_path',
+        dest="checkpoint_path",
         metavar="path",
-        help='Overwrites the path to the saved checkpoint containing the model weights'
+        help="Overwrites the path to the saved checkpoint containing the model weights",
     )
 
     args = parser.parse_args()
@@ -50,7 +51,6 @@ def main():
     if config.input_shape[2] == 3:
         color_mode = image_util.cv2_color
 
-    
     test_images = image_util.load_images(config.test_files_path, color_mode)
     tmp_imgs = []
     for img in test_images:
@@ -63,5 +63,6 @@ def main():
     model.predict(test_images)
     model.plot_predictions(test_images)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
