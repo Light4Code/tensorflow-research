@@ -12,6 +12,7 @@ from tensorflow.keras.utils import *
 
 from models.anomaly_detection.advanced_model import AdvancedModel
 from models.anomaly_detection.fast_model import FastModel
+from models.anomaly_detection.satellite_unet_model import SatelliteUnetModel
 from models.anomaly_detection.small_unet_model import SmallUnetModel
 from utils.config import Config
 from utils.image_util import ImageUtil
@@ -136,7 +137,6 @@ def main():
 def train(config, image_util):
     # ToDo: Create model
     model = create_model(config)
-    model.prepare_training()
 
     # ToDo: Train model
     model.train()
@@ -176,6 +176,8 @@ def create_model(config):
         model_container = AdvancedModel(config)
     elif config.model == 'small_unet':
         model_container = SmallUnetModel(config)
+    elif config.model == 'satellite_unet':
+        model_container = SatelliteUnetModel(config)
     else:
         TypeError
 

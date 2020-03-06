@@ -1,10 +1,13 @@
-from utils.config import Config
-from tensorflow.keras.optimizers import Adam
-from utils.image_util import ImageUtil
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.callbacks import ModelCheckpoint
-import numpy as np
 import abc
+
+import numpy as np
+from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+from utils.config import Config
+from utils.image_util import ImageUtil
+
 
 class BaseModel():
     def __init__(self, config):
@@ -12,6 +15,7 @@ class BaseModel():
         self.image_util = ImageUtil()
         self.config = config
         
+        self.prepare_training()
         self.create_callbacks()
         self.create_model()
         self.create_optimizer()
