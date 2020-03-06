@@ -19,15 +19,28 @@ class Config:
             self.checkpoint_path = self.train["checkpoint_path"]
             self.checkpoint_save_best_only = self.train["checkpoint_save_best_only"]
 
+            self.loss = None
+            self.train_mask_files_path = None
+            self.image_data_generator = None
+            self.image_data_generator_horizonal_flip = None
+            self.image_data_generator_zoom_range = None
+            self.image_data_generator_width_shift_range = None
+            self.image_data_generator_height_shift_range = None
+            self.image_data_generator_rotation_range = None
+            self.image_data_generator_featurewise_center = None
+
+            self.test_files_path = None
+            self.test_threshold = None
+
             try:
                 self.loss = self.train["loss"]
             except:
-                self.loss = None
+                pass
 
             try:
                 self.train_mask_files_path = self.train["mask_files_path"]
             except:
-                self.train_mask_files_path = None
+                pass
 
             try:
                 self.image_data_generator = self.train["image_data_generator"]
@@ -53,21 +66,14 @@ class Config:
                     "featurewise_std_normalization"
                 ]
             except:
-                self.image_data_generator = None
-                self.image_data_generator_horizonal_flip = None
-                self.image_data_generator_zoom_range = None
-                self.image_data_generator_width_shift_range = None
-                self.image_data_generator_height_shift_range = None
-                self.image_data_generator_rotation_range = None
-                self.image_data_generator_featurewise_center = None
+                pass
 
             try:
                 test = data["test"]
                 self.test_files_path = test["files_path"]
                 try:
-                    self.test_threshold = test["threshold"]
+                    self.test_threshold = test["test_threshold"]
                 except:
-                    self.test_threshold = None
+                    pass
             except:
-                self.test_files_path = None
-                self.test_threshold = None
+                pass

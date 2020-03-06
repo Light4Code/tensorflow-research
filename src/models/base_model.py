@@ -10,6 +10,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from utils.config import Config
 from utils.image_util import ImageUtil
+import numpy.ma as ma
 
 
 class BaseModel:
@@ -111,11 +112,21 @@ class BaseModel:
         index = 1
         plt_index = 0
         for test_image in test_images:
-            plt.subplot(pred_count, 2, index)
-            plt.imshow(test_image.reshape(plt_shape), cmap=plt_cmap)
+            original_image = test_image.reshape(plt_shape)
+            pred_image = self.predictions[plt_index].reshape(plt_shape)
+            mask = ma.masked_where(pred_image < self.config.test_threshold, pred_image)
+            plt.subplot(pred_count, 3, index)
+            plt.title("Original")
+            plt.imshow(original_image, interpolation="none", cmap=plt_cmap)
             index += 1
-            plt.subplot(pred_count, 2, index)
-            plt.imshow(self.predictions[plt_index].reshape(plt_shape), cmap=plt_cmap)
+            plt.subplot(pred_count, 3, index)
+            plt.title("Prediction")
+            plt.imshow(pred_image, interpolation="none", cmap=plt_cmap)
+            index += 1
+            plt.subplot(pred_count, 3, index)
+            plt.title("Overlay")
+            plt.imshow(original_image, interpolation="none", cmap=plt_cmap)
+            plt.imshow(mask, cmap="jet", interpolation="none", alpha=0.7)
             index += 1
             plt_index += 1
         plt.show()
