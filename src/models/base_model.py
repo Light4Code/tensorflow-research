@@ -13,7 +13,6 @@ from utils.config import Config
 from utils.image_util import ImageUtil
 
 
-
 class BaseModel:
     def __init__(self, config):
         super().__init__()
@@ -140,9 +139,10 @@ class BaseModel:
         )
         self.train_images = np.array(self.train_images)
         if self.config.train_mask_files_path:
-            self.y_train = self.load_images(
-                self.config.train_mask_files_path, self.config.input_shape
-            )
+            masks = self.image_util.create_mask_images(self.config)
+            for m in masks:
+                m = self.image_util.normalize(m, self.config.input_shape)
+            self.y_train = masks
         else:
             self.y_train = self.train_images
 
