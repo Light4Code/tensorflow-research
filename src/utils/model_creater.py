@@ -13,6 +13,8 @@ def create_model(config):
         model_container = SatelliteUnetModel(config)
     elif config.model == "custom_unet":
         model_container = CustomUnetModel(config)
+    elif config.model == "vanilla_unet":
+        model_container = VanillaUnetModel(config)
     else:
         TypeError
 

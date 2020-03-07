@@ -25,9 +25,7 @@ class CustomUnetModel(BaseModel):
 
     def compile(self, loss="binary_crossentropy"):
         self.model.compile(
-            optimizer=self.optimizer,
-            loss=loss,
-            metrics=[self.iou, self.iou_thresholded],
+            optimizer=self.optimizer, loss=loss, metrics=[iou, iou_thresholded],
         )
 
     def create_model(self):
@@ -39,52 +37,6 @@ class CustomUnetModel(BaseModel):
 
     def upsample_simple(self, filters, kernel_size, strides, padding):
         return UpSampling2D(strides)
-
-    def conv2d_block(
-        self,
-        inputs,
-        use_batch_norm=True,
-        dropout=0.3,
-        dropout_type="spatial",
-        filters=16,
-        kernel_size=(3, 3),
-        activation="relu",
-        kernel_initializer="he_normal",
-        padding="same",
-    ):
-
-        if dropout_type == "spatial":
-            DO = SpatialDropout2D
-        elif dropout_type == "standard":
-            DO = Dropout
-        else:
-            raise ValueError(
-                f"dropout_type must be one of ['spatial', 'standard'], got {dropout_type}"
-            )
-
-        c = Conv2D(
-            filters,
-            kernel_size,
-            activation=activation,
-            kernel_initializer=kernel_initializer,
-            padding=padding,
-            use_bias=not use_batch_norm,
-        )(inputs)
-        if use_batch_norm:
-            c = BatchNormalization()(c)
-        if dropout > 0.0:
-            c = DO(dropout)(c)
-        c = Conv2D(
-            filters,
-            kernel_size,
-            activation=activation,
-            kernel_initializer=kernel_initializer,
-            padding=padding,
-            use_bias=not use_batch_norm,
-        )(c)
-        if use_batch_norm:
-            c = BatchNormalization()(c)
-        return c
 
     def custom_unet(
         self,
@@ -136,7 +88,7 @@ class CustomUnetModel(BaseModel):
 
         down_layers = []
         for l in range(num_layers):
-            x = self.conv2d_block(
+            x = conv2d_block(
                 inputs=x,
                 filters=filters,
                 use_batch_norm=use_batch_norm,
@@ -149,7 +101,7 @@ class CustomUnetModel(BaseModel):
             dropout += dropout_change_per_layer
             filters = filters * 2  # double the number of filters with each layer
 
-        x = self.conv2d_block(
+        x = conv2d_block(
             inputs=x,
             filters=filters,
             use_batch_norm=use_batch_norm,
@@ -167,7 +119,7 @@ class CustomUnetModel(BaseModel):
             dropout -= dropout_change_per_layer
             x = upsample(filters, (2, 2), strides=(2, 2), padding="same")(x)
             x = concatenate([x, conv])
-            x = self.conv2d_block(
+            x = conv2d_block(
                 inputs=x,
                 filters=filters,
                 use_batch_norm=use_batch_norm,
@@ -183,24 +135,74 @@ class CustomUnetModel(BaseModel):
         model = Model(inputs=[inputs], outputs=[outputs])
         return model
 
-    def iou(self, y_true, y_pred, smooth=1.0):
-        y_true_f = K.flatten(y_true)
-        y_pred_f = K.flatten(y_pred)
-        intersection = K.sum(y_true_f * y_pred_f)
-        return (intersection + smooth) / (
-            K.sum(y_true_f) + K.sum(y_pred_f) - intersection + smooth
+
+def iou(y_true, y_pred, smooth=1.0):
+    y_true_f = K.flatten(y_true)
+    y_pred_f = K.flatten(y_pred)
+    intersection = K.sum(y_true_f * y_pred_f)
+    return (intersection + smooth) / (
+        K.sum(y_true_f) + K.sum(y_pred_f) - intersection + smooth
+    )
+
+
+def threshold_binarize(x, threshold=0.5):
+    ge = tf.greater_equal(x, tf.constant(threshold))
+    y = tf.where(ge, x=tf.ones_like(x), y=tf.zeros_like(x))
+    return y
+
+
+def iou_thresholded(y_true, y_pred, threshold=0.5, smooth=1.0):
+    y_pred = threshold_binarize(y_pred, threshold)
+    y_true_f = K.flatten(y_true)
+    y_pred_f = K.flatten(y_pred)
+    intersection = K.sum(y_true_f * y_pred_f)
+    return (intersection + smooth) / (
+        K.sum(y_true_f) + K.sum(y_pred_f) - intersection + smooth
+    )
+
+
+def conv2d_block(
+    inputs,
+    use_batch_norm=True,
+    dropout=0.3,
+    dropout_type="spatial",
+    filters=16,
+    kernel_size=(3, 3),
+    activation="relu",
+    kernel_initializer="he_normal",
+    padding="same",
+):
+
+    if dropout_type == "spatial":
+        DO = SpatialDropout2D
+    elif dropout_type == "standard":
+        DO = Dropout
+    else:
+        raise ValueError(
+            f"dropout_type must be one of ['spatial', 'standard'], got {dropout_type}"
         )
 
-    def threshold_binarize(self, x, threshold=0.5):
-        ge = tf.greater_equal(x, tf.constant(threshold))
-        y = tf.where(ge, x=tf.ones_like(x), y=tf.zeros_like(x))
-        return y
+    c = Conv2D(
+        filters,
+        kernel_size,
+        activation=activation,
+        kernel_initializer=kernel_initializer,
+        padding=padding,
+        use_bias=not use_batch_norm,
+    )(inputs)
+    if use_batch_norm:
+        c = BatchNormalization()(c)
+    if dropout > 0.0:
+        c = DO(dropout)(c)
+    c = Conv2D(
+        filters,
+        kernel_size,
+        activation=activation,
+        kernel_initializer=kernel_initializer,
+        padding=padding,
+        use_bias=not use_batch_norm,
+    )(c)
+    if use_batch_norm:
+        c = BatchNormalization()(c)
+    return c
 
-    def iou_thresholded(self, y_true, y_pred, threshold=0.5, smooth=1.0):
-        y_pred = self.threshold_binarize(y_pred, threshold)
-        y_true_f = K.flatten(y_true)
-        y_pred_f = K.flatten(y_pred)
-        intersection = K.sum(y_true_f * y_pred_f)
-        return (intersection + smooth) / (
-            K.sum(y_true_f) + K.sum(y_pred_f) - intersection + smooth
-        )

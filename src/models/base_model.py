@@ -16,6 +16,7 @@ class BaseModel:
     def __init__(self, config):
         super().__init__()
         self.input_name = "input"
+        self.initial_epoch = 0
         self.image_util = ImageUtil()
         self.config = config
 
@@ -38,7 +39,7 @@ class BaseModel:
         return
 
     @abc.abstractmethod
-    def compile(self):
+    def compile(self, loss=None):
         return
 
     def create_optimizer(self, optimizer=None):
@@ -68,7 +69,6 @@ class BaseModel:
             )
 
     def load_weights(self):
-        self.initial_epoch = 0
         if self.config.checkpoint_path:
             self.model.load_weights(self.config.checkpoint_path)
             try:
