@@ -20,13 +20,12 @@ class AdvancedModel(BaseModel):
     def __init__(self, config):
         super().__init__(config)
 
-    def create_optimizer(self):
-        self.optimizer_name = "adma"
-        self.optimizer = Adam(lr=self.config.learning_rate)
+    def create_optimizer(self, optimzer="adam"):
+        super().create_optimizer(optimzer)
 
     def create_model(self, filters=(32, 64), latent_dim=16):
         input_shape = self.config.input_shape
-        inputs = Input(shape=input_shape)
+        inputs = Input(shape=input_shape, name=self.input_name)
         x = inputs
         for f in filters:
             x = Conv2D(filters=f, kernel_size=(3, 3), strides=2, padding="same")(x)

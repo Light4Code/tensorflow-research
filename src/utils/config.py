@@ -20,6 +20,7 @@ class Config:
             self.checkpoint_save_best_only = self.train["checkpoint_save_best_only"]
 
             self.loss = None
+            self.optimizer = None
             self.train_mask_files_path = None
             self.image_data_generator = None
             self.image_data_generator_horizonal_flip = None
@@ -34,6 +35,11 @@ class Config:
 
             try:
                 self.loss = self.train["loss"]
+            except:
+                pass
+
+            try:
+                self.optimizer = self.train["optimizer"]
             except:
                 pass
 

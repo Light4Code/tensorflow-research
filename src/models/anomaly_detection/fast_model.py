@@ -12,9 +12,8 @@ class FastModel(BaseModel):
     def __init__(self, config):
         super().__init__(config)
 
-    def create_optimizer(self):
-        self.optimizer_name = "adam"
-        self.optimizer = Adam(lr=self.config.learning_rate)
+    def create_optimizer(self, optimzer="adam"):
+        super().create_optimizer(optimzer)
 
     def create_model(self):
         input_shape = self.config.input_shape
@@ -28,7 +27,7 @@ class FastModel(BaseModel):
             middle_layer_size = 16
 
         input_dim = input_shape[0] * input_shape[1] * input_shape[2]
-        input = tf.keras.Input(input_shape, name="input_shape")
+        input = tf.keras.Input(input_shape, name=self.input_name)
         x = input
         x = Flatten()(x)
         x = BatchNormalization()(x)

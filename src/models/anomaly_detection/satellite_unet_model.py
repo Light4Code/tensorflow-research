@@ -56,9 +56,8 @@ class SatelliteUnetModel(BaseModel):
         x = Conv2DTranspose(filters, **conv2d_trans_args)(x)
         return x
 
-    def create_optimizer(self):
-        self.optimizer_name = "sgd"
-        self.optimizer = SGD(lr=self.config.learning_rate, momentum=0.99)
+    def create_optimizer(self, optimzer="sgd"):
+        super().create_optimizer(optimzer)
 
     def compile(self, loss="binary_crossentropy"):
         self.model.compile(
@@ -78,7 +77,7 @@ class SatelliteUnetModel(BaseModel):
         padding = "same"
         kernel_initializer = "he_normal"
 
-        inputs = Input(input_shape)
+        inputs = Input(input_shape, name=self.input_name)
 
         conv2d_args = {
             "kernel_size": kernel_size,
@@ -141,6 +140,7 @@ class SatelliteUnetModel(BaseModel):
             strides=(1, 1),
             activation=output_activation,
             padding="valid",
+            name="output",
         )(x)
 
         self.model = Model(inputs=[inputs], outputs=[outputs])

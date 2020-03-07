@@ -12,10 +12,6 @@ from tensorflow.keras.layers import (
     concatenate,
 )
 from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
-import os, sys
-
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
 from models.base_model import BaseModel
 
 
@@ -44,14 +40,23 @@ class SmallUnetModel(BaseModel):
     def __init__(self, config):
         super().__init__(config)
 
-    def create_optimizer(self):
-        self.optimizer_name = "adam"
-        self.optimizer = Adam(lr=self.config.learning_rate)
+    def create_optimizer(self, optimzer="adam"):
+        super().create_optimizer(optimzer)
+
+    def compile(self, loss=None):
+        if loss:
+            self.model.compile(
+                optimizer=self.optimizer, loss=loss, metrics=[IOU_calc],
+            )
+        else:
+            self.model.compile(
+                optimizer=self.optimizer, loss=IOU_calc_loss, metrics=[IOU_calc]
+            )
 
     def create_model(self):
         input_shape = self.config.input_shape
-        inputs = Input(shape=input_shape)
-        conv1 = Conv2D(16, (3, 3), activation="relu", padding="same")(inputs)
+        input = Input(shape=input_shape, name=self.input_name)
+        conv1 = Conv2D(16, (3, 3), activation="relu", padding="same")(input)
         conv1 = Conv2D(16, (3, 3), activation="relu", padding="same")(conv1)
         pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
 
@@ -118,18 +123,9 @@ class SmallUnetModel(BaseModel):
         conv9 = Conv2D(16, (3, 3), activation="relu", padding="same")(up9)
         conv9 = Conv2D(16, (3, 3), activation="relu", padding="same")(conv9)
 
-        conv10 = Conv2D(1, (1, 1), activation="sigmoid")(conv9)
+        conv10 = Conv2D(1, (1, 1), activation="sigmoid", name="output")(conv9)
 
-        self.model = Model(inputs=inputs, outputs=conv10)
+        self.model = Model(inputs=[input], outputs=[conv10])
 
         return self.model
 
-    def compile(self, loss=None):
-        if loss:
-            self.model.compile(
-                optimizer=self.optimizer, loss=loss, metrics=[IOU_calc],
-            )
-        else:
-            self.model.compile(
-                optimizer=self.optimizer, loss=IOU_calc_loss, metrics=[IOU_calc]
-            )

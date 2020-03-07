@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
 from tensorflow.keras.callbacks import ModelCheckpoint
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam, SGD
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from utils.config import Config
@@ -16,13 +16,18 @@ from utils.image_util import ImageUtil
 class BaseModel:
     def __init__(self, config):
         super().__init__()
+        self.input_name = "input"
         self.image_util = ImageUtil()
         self.config = config
 
         self.prepare_training()
         self.create_callbacks()
         self.create_model()
-        self.create_optimizer()
+        if self.config.optimizer:
+            self.create_optimizer(optimizer=self.config.optimizer)
+        else:
+            self.create_optimizer()
+
         if self.config.loss:
             self.compile(loss=self.config.loss)
         else:
@@ -37,9 +42,18 @@ class BaseModel:
     def compile(self):
         return
 
-    @abc.abstractmethod
-    def create_optimizer(self):
-        return
+    def create_optimizer(self, optimizer=None):
+        if not optimizer:
+            ValueError
+
+        if optimizer == "adam":
+            self.optimizer = Adam(lr=self.config.learning_rate)
+        elif optimizer == "sgd":
+            self.optimizer = SGD(lr=self.config.learning_rate, momentum=0.99)
+        else:
+            ValueError
+
+        self.optimizer_name = optimizer
 
     def create_callbacks(self):
         self.callbacks = []
@@ -97,7 +111,9 @@ class BaseModel:
     def predict(self, test_images):
         self.predictions = []
         for img in test_images:
-            self.predictions.append(self.model.predict(np.array([img]), batch_size=1))
+            self.predictions.append(
+                self.model.predict(np.array([img], dtype=np.float32), batch_size=1)
+            )
 
     def plot_predictions(self, test_images):
         pred_count = len(self.predictions)
@@ -137,7 +153,7 @@ class BaseModel:
         self.train_images = self.load_images(
             self.config.train_files_path, self.config.input_shape
         )
-        self.train_images = np.array(self.train_images)
+        self.train_images = np.array(self.train_images, dtype=np.float32)
         if self.config.train_mask_files_path:
             masks = self.image_util.create_mask_images(self.config)
             for m in masks:
@@ -146,7 +162,7 @@ class BaseModel:
         else:
             self.y_train = self.train_images
 
-        self.y_train = np.array(self.y_train)
+        self.y_train = np.array(self.y_train, dtype=np.float32)
 
         # Create train generator
         self.train_datagen = None

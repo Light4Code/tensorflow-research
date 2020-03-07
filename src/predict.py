@@ -57,7 +57,7 @@ def main():
         res = image_util.resize_image(img, config.input_shape[1], config.input_shape[0])
         norm = image_util.normalize(res, config.input_shape)
         tmp_imgs.append(norm)
-    test_images = np.array(tmp_imgs)
+    test_images = np.array(tmp_imgs, dtype=np.float32)
 
     model = create_model(config)
     model.predict(test_images)
