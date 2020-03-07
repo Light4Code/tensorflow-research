@@ -1,4 +1,3 @@
-# https://github.com/karolzak/keras-unet
 # https://deepsense.ai/deep-learning-for-satellite-imagery-via-image-segmentation/
 import tensorflow as tf
 from tensorflow.keras import backend as K
@@ -17,51 +16,18 @@ from tensorflow.keras.optimizers import SGD
 from models.base_model import BaseModel
 
 
-def iou(y_true, y_pred, smooth=1.0):
-    y_true_f = K.flatten(y_true)
-    y_pred_f = K.flatten(y_pred)
-    intersection = K.sum(y_true_f * y_pred_f)
-    return (intersection + smooth) / (
-        K.sum(y_true_f) + K.sum(y_pred_f) - intersection + smooth
-    )
-
-
-def threshold_binarize(x, threshold=0.5):
-    ge = tf.greater_equal(x, tf.constant(threshold))
-    y = tf.where(ge, x=tf.ones_like(x), y=tf.zeros_like(x))
-    return y
-
-
-def iou_thresholded(y_true, y_pred, threshold=0.5, smooth=1.0):
-    y_pred = threshold_binarize(y_pred, threshold)
-    y_true_f = K.flatten(y_true)
-    y_pred_f = K.flatten(y_pred)
-    intersection = K.sum(y_true_f * y_pred_f)
-    return (intersection + smooth) / (
-        K.sum(y_true_f) + K.sum(y_pred_f) - intersection + smooth
-    )
-
-
 class SatelliteUnetModel(BaseModel):
     def __init__(self, config):
         super().__init__(config)
-
-    def bn_conv_relu(self, input, filters, bachnorm_momentum, **conv2d_args):
-        x = BatchNormalization(momentum=bachnorm_momentum)(input)
-        x = Conv2D(filters, **conv2d_args)(x)
-        return x
-
-    def bn_upconv_relu(self, input, filters, bachnorm_momentum, **conv2d_trans_args):
-        x = BatchNormalization(momentum=bachnorm_momentum)(input)
-        x = Conv2DTranspose(filters, **conv2d_trans_args)(x)
-        return x
 
     def create_optimizer(self, optimzer="sgd"):
         super().create_optimizer(optimzer)
 
     def compile(self, loss="binary_crossentropy"):
         self.model.compile(
-            optimizer=self.optimizer, loss=loss, metrics=[iou, iou_thresholded]
+            optimizer=self.optimizer,
+            loss=loss,
+            metrics=[self.iou, self.iou_thresholded],
         )
 
     def create_model(self):
@@ -144,4 +110,36 @@ class SatelliteUnetModel(BaseModel):
         )(x)
 
         self.model = Model(inputs=[inputs], outputs=[outputs])
+
+    def iou(self, y_true, y_pred, smooth=1.0):
+        y_true_f = K.flatten(y_true)
+        y_pred_f = K.flatten(y_pred)
+        intersection = K.sum(y_true_f * y_pred_f)
+        return (intersection + smooth) / (
+            K.sum(y_true_f) + K.sum(y_pred_f) - intersection + smooth
+        )
+
+    def threshold_binarize(self, x, threshold=0.5):
+        ge = tf.greater_equal(x, tf.constant(threshold))
+        y = tf.where(ge, x=tf.ones_like(x), y=tf.zeros_like(x))
+        return y
+
+    def iou_thresholded(self, y_true, y_pred, threshold=0.5, smooth=1.0):
+        y_pred = self.threshold_binarize(y_pred, threshold)
+        y_true_f = K.flatten(y_true)
+        y_pred_f = K.flatten(y_pred)
+        intersection = K.sum(y_true_f * y_pred_f)
+        return (intersection + smooth) / (
+            K.sum(y_true_f) + K.sum(y_pred_f) - intersection + smooth
+        )
+
+    def bn_conv_relu(self, input, filters, bachnorm_momentum, **conv2d_args):
+        x = BatchNormalization(momentum=bachnorm_momentum)(input)
+        x = Conv2D(filters, **conv2d_args)(x)
+        return x
+
+    def bn_upconv_relu(self, input, filters, bachnorm_momentum, **conv2d_trans_args):
+        x = BatchNormalization(momentum=bachnorm_momentum)(input)
+        x = Conv2DTranspose(filters, **conv2d_trans_args)(x)
+        return x
 
