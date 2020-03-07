@@ -13,7 +13,7 @@ from tensorflow.keras.layers import (
     concatenate,
 )
 from tensorflow.keras.models import Model
-from models.base_model import BaseModel
+from models import BaseModel
 
 
 class CustomUnetModel(BaseModel):

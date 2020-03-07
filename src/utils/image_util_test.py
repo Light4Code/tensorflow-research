@@ -1,5 +1,5 @@
 import unittest
-from utils.image_util import ImageUtil
+from utils import ImageUtil
 
 
 class Test_ImageUtil(unittest.TestCase):

@@ -1,8 +1,5 @@
-from models.anomaly_detection.advanced_model import AdvancedModel
-from models.anomaly_detection.fast_model import FastModel
-from models.segmentation.satellite_unet_model import SatelliteUnetModel
-from models.segmentation.custom_unet_model import CustomUnetModel
-from models.segmentation.small_unet_model import SmallUnetModel
+from models.segmentation import *
+from models.anomaly_detection import *
 
 
 def create_model(config):

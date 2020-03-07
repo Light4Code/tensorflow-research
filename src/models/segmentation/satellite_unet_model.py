@@ -13,7 +13,7 @@ from tensorflow.keras.layers import (
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import SGD
 
-from models.base_model import BaseModel
+from models import BaseModel
 
 
 class SatelliteUnetModel(BaseModel):

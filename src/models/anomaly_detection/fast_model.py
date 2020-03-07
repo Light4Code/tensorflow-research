@@ -1,11 +1,11 @@
 import tensorflow as tf
 import numpy as np
 import numpy.ma as ma
+import matplotlib.pyplot as plt
 from tensorflow.keras.layers import BatchNormalization, Dense, Flatten, Reshape
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
-from models.base_model import BaseModel
-import matplotlib.pyplot as plt
+from models import BaseModel
 
 
 class FastModel(BaseModel):

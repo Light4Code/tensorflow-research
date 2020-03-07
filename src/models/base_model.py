@@ -9,8 +9,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.optimizers import Adam, SGD
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-from utils.config import Config
-from utils.image_util import ImageUtil
+from utils import *
 
 
 class BaseModel:

@@ -1,10 +1,7 @@
 import argparse
 
 import numpy as np
-
-from utils.config import Config
-from utils.image_util import ImageUtil
-from utils.model_creater import create_model
+from utils import *
 
 
 def main():
