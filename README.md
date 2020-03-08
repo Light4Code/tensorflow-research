@@ -44,10 +44,14 @@ Anomaly detection will use a autoencoder approche, the prediction substratced fr
     TensorFlow==2.1.0 is running with GPU support
 
 ### Unet (vanilla)
-`vanilla_unet_model.py`
+`vanilla_unet_model.py` <br/>
+It's critical to set the learning rate to a low value (1e-5) for this sample, we have only a few images and would quick overfit.
 
+[Used configuration](https://github.com/Light4Code/tensorflow-research/blob/master/config/anomaly_detection_wood_plate.json)
+
+As we can see the first 100 epochs are not enough, but the model is starting to recognize what it should detect.
 ![vanilla_epoch100](https://raw.githubusercontent.com/Light4Code/tensorflow-research/master/doc/img/wood_vanilla_unet_100epoch.png)
 
-![vanilla_epoch200](https://raw.githubusercontent.com/Light4Code/tensorflow-research/master/doc/img/wood_vanilla_unet_200epoch.png)
-
+After 200 more epochs we get a nice result. <br/>
+Training epochs is really quick with GPU, only 17ms per step.
 ![vanilla_epoch300](https://raw.githubusercontent.com/Light4Code/tensorflow-research/master/doc/img/wood_vanilla_unet_300epoch.png)
