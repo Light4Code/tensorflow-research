@@ -16,5 +16,5 @@ The "train.py" script is consuming a configuration file (you will find some pred
 ## Models
 ### Segmentation
 #### Unet
-[Original paper](https://arxiv.org/pdf/1505.04597.pdf)
+- [Vanilla Unet](https://arxiv.org/pdf/1505.04597.pdf) (original paper)
 - [Custom/Satellite Unet](https://github.com/karolzak/keras-unet)
