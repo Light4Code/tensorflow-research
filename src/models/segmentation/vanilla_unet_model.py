@@ -29,7 +29,7 @@ class VanillaUnetModel(BaseModel):
         kernel_initializer = "he_normal"
         padding = "same"
 
-        inputs = Input(input_shape)
+        inputs = Input(input_shape, name=self.input_name)
 
         conv1 = Conv2D(
             16,
@@ -187,6 +187,8 @@ class VanillaUnetModel(BaseModel):
             padding=padding,
         )(conv9)
 
-        outputs = Conv2D(1, (1, 1), activation=output_activation)(conv9)
+        outputs = Conv2D(
+            1, (1, 1), activation=output_activation, name=self.output_name
+        )(conv9)
 
         self.model = Model(inputs=[inputs], outputs=[outputs])

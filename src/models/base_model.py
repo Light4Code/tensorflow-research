@@ -16,6 +16,7 @@ class BaseModel:
     def __init__(self, config):
         super().__init__()
         self.input_name = "input"
+        self.output_name = "output"
         self.initial_epoch = 0
         self.image_util = ImageUtil()
         self.config = config

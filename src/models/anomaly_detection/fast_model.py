@@ -36,7 +36,7 @@ class FastModel(BaseModel):
         x = BatchNormalization()(x)
         x = Dense(translator_layer_size, activation="relu", name="decoder")(x)
         x = Dense(input_dim, activation="sigmoid", name="reconstructor")(x)
-        x = Reshape(input_shape)(x)
+        x = Reshape(input_shape, name=self.output_name)(x)
 
         self.model = Model(input, x)
         return self.model

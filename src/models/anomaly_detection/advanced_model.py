@@ -35,7 +35,6 @@ class AdvancedModel(BaseModel):
         x = Flatten()(x)
         latent = Dense(units=latent_dim)(x)  # Encoded
         encoder = Model(inputs, latent, name="encoder")
-        print(encoder.summary())
 
         latent_inputs = Input(shape=(latent_dim,))
         x = Dense(np.prod(volume_size[1:]))(latent_inputs)
@@ -49,12 +48,10 @@ class AdvancedModel(BaseModel):
         x = Conv2DTranspose(filters=input_shape[2], kernel_size=(3, 3), padding="same")(
             x
         )
-        outputs = Activation("sigmoid")(x)  # Decoded
+        outputs = Activation("sigmoid", name=self.output_name)(x)  # Decoded
         decoder = Model(latent_inputs, outputs, name="decoder")
-        print(decoder.summary())
 
         self.model = Model(inputs, decoder(encoder(inputs)), name="autoencoder")
-        print(self.model.summary())
         return self.model
 
     def overwrite_optimizer(self, optimizer, optimizer_name):

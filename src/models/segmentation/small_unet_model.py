@@ -123,7 +123,7 @@ class SmallUnetModel(BaseModel):
         conv9 = Conv2D(16, (3, 3), activation="relu", padding="same")(up9)
         conv9 = Conv2D(16, (3, 3), activation="relu", padding="same")(conv9)
 
-        conv10 = Conv2D(1, (1, 1), activation="sigmoid", name="output")(conv9)
+        conv10 = Conv2D(1, (1, 1), activation="sigmoid", name=self.output_name)(conv9)
 
         self.model = Model(inputs=[inputs], outputs=[conv10])
 

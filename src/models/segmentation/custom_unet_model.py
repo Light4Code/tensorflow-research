@@ -129,7 +129,7 @@ class CustomUnetModel(BaseModel):
             )
 
         outputs = Conv2D(
-            num_classes, (1, 1), activation=output_activation, name="output"
+            num_classes, (1, 1), activation=output_activation, name=self.output_name
         )(x)
 
         model = Model(inputs=[inputs], outputs=[outputs])

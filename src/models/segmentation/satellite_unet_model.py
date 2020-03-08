@@ -105,7 +105,7 @@ class SatelliteUnetModel(BaseModel):
             strides=(1, 1),
             activation=output_activation,
             padding="valid",
-            name="output",
+            name=self.output_name,
         )(x)
 
         self.model = Model(inputs=[inputs], outputs=[outputs])
