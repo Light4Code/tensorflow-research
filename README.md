@@ -1,7 +1,5 @@
 # tensorflow-research
 
-> Work in progress!
-
 ## Goal
 
 The goal of this repository is to research TensorFlow for machine vision industrial usage. <br/>
