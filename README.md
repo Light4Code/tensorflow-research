@@ -38,10 +38,16 @@ Anomaly detection will use a autoencoder approche, the prediction substratced fr
 
 ## Sample test results
 ### Environment
-OS: Ubuntu 18.04 <br/>
-GPU: Nvidia RTX 2080Ti <br/>
-CPU: Intel(R) Core(TM) i9-9900K CPU @ 3.60GHz <br/>
-TensorFlow==2.1.0 is running with GPU support
+    OS: Ubuntu 18.04 <br/>
+    GPU: Nvidia RTX 2080Ti <br/>
+    CPU: Intel(R) Core(TM) i9-9900K CPU @ 3.60GHz <br/>
+    TensorFlow==2.1.0 is running with GPU support
 
 ### Unet (vanilla)
-`vanila_unet_model.py`
+`vanilla_unet_model.py`
+
+![vanilla_epoch100](https://raw.githubusercontent.com/Light4Code/tensorflow-research/master/doc/img/wood_vanilla_unet_100epoch.png)
+
+![vanilla_epoch200](https://raw.githubusercontent.com/Light4Code/tensorflow-research/master/doc/img/wood_vanilla_unet_200epoch.png)
+
+![vanilla_epoch300](https://raw.githubusercontent.com/Light4Code/tensorflow-research/master/doc/img/wood_vanilla_unet_300epoch.png)
