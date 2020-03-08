@@ -16,8 +16,10 @@ class Config:
             self.learning_rate = self.train["learning_rate"]
             self.checkpoints_path = self.train["checkpoints_path"]
             self.checkpoint_save_period = self.train["checkpoint_save_period"]
-            self.checkpoint_path = self.train["checkpoint_path"]
+
             self.checkpoint_save_best_only = self.train["checkpoint_save_best_only"]
+
+            self.checkpoint_path = None
 
             self.loss = None
             self.optimizer = None
@@ -32,6 +34,11 @@ class Config:
 
             self.test_files_path = None
             self.test_threshold = None
+
+            try:
+                self.checkpoint_path = self.train["checkpoint_path"]
+            except:
+                pass
 
             try:
                 self.loss = self.train["loss"]
