@@ -1,0 +1,18 @@
+{
+    "input_shape": [512, 512, 1],
+    "train": {
+        "model": "small_unet",
+        "batch_size": 10,
+        "epochs": 100,
+        "learning_rate": 1e-4,
+        "files_path": "",
+        "mask_files_path": "",
+        "checkpoints_path": "",
+        "checkpoint_save_period": 10,
+        "checkpoint_path": "",
+        "checkpoint_save_best_only": false
+    },
+    "test": {
+        "files_path": "PATH_TO_TEST_FILE"
+    }
+}
