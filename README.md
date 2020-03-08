@@ -53,5 +53,5 @@ As we can see the first 100 epochs are not enough, but the model is starting to 
 ![vanilla_epoch100](https://raw.githubusercontent.com/Light4Code/tensorflow-research/master/doc/img/wood_vanilla_unet_100epoch.png)
 
 After 200 more epochs we get a nice result. <br/>
-Training epochs is really quick with GPU, only 17ms per step.
+Training the epochs is really quick with GPU, only 17ms per step.
 ![vanilla_epoch300](https://raw.githubusercontent.com/Light4Code/tensorflow-research/master/doc/img/wood_vanilla_unet_300epoch.png)
