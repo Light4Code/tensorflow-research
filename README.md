@@ -35,3 +35,13 @@ Anomaly detection will use a autoencoder approche, the prediction substratced fr
 #### Unet
 - [Vanilla Unet](https://arxiv.org/pdf/1505.04597.pdf) (original paper)
 - [Custom/Satellite Unet](https://github.com/karolzak/keras-unet)
+
+## Sample test results
+### Environment
+OS: Ubuntu 18.04 <br/>
+GPU: Nvidia RTX 2080Ti <br/>
+CPU: Intel(R) Core(TM) i9-9900K CPU @ 3.60GHz <br/>
+TensorFlow==2.1.0 is running with GPU support
+
+### Unet (vanilla)
+`vanila_unet_model.py`
