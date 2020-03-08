@@ -38,9 +38,9 @@ Anomaly detection will use a autoencoder approche, the prediction substratced fr
 
 ## Sample test results
 ### Environment
-    OS: Ubuntu 18.04 <br/>
-    GPU: Nvidia RTX 2080Ti <br/>
-    CPU: Intel(R) Core(TM) i9-9900K CPU @ 3.60GHz <br/>
+    OS: Ubuntu 18.04
+    GPU: Nvidia RTX 2080Ti
+    CPU: Intel(R) Core(TM) i9-9900K CPU @ 3.60GHz
     TensorFlow==2.1.0 is running with GPU support
 
 ### Unet (vanilla)
