@@ -55,8 +55,8 @@ class SmallUnetModel(BaseModel):
 
     def create_model(self):
         input_shape = self.config.input_shape
-        input = Input(shape=input_shape, name=self.input_name)
-        conv1 = Conv2D(16, (3, 3), activation="relu", padding="same")(input)
+        inputs = Input(shape=input_shape, name=self.input_name)
+        conv1 = Conv2D(16, (3, 3), activation="relu", padding="same")(inputs)
         conv1 = Conv2D(16, (3, 3), activation="relu", padding="same")(conv1)
         pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
 
@@ -125,7 +125,7 @@ class SmallUnetModel(BaseModel):
 
         conv10 = Conv2D(1, (1, 1), activation="sigmoid", name="output")(conv9)
 
-        self.model = Model(inputs=[input], outputs=[conv10])
+        self.model = Model(inputs=[inputs], outputs=[conv10])
 
         return self.model
 

@@ -154,9 +154,11 @@ class BaseModel:
         )
         self.train_images = np.array(self.train_images, dtype=np.float32)
         if self.config.train_mask_files_path:
-            masks = self.image_util.create_mask_images(self.config)
-            for m in masks:
+            original_masks = self.image_util.create_mask_images(self.config)
+            masks = []
+            for m in original_masks:
                 m = self.image_util.normalize(m, self.config.input_shape)
+                masks.append(m)
             self.y_train = masks
         else:
             self.y_train = self.train_images
