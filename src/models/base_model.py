@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
 from tensorflow.keras.callbacks import ModelCheckpoint
-from tensorflow.keras.optimizers import Adam, SGD
+from tensorflow.keras.optimizers import SGD, Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from utils import *
@@ -83,20 +83,17 @@ class BaseModel:
                 )
 
     def train(self):
-        if self.train_datagen:
+        if not self.train_datagen == None:
             self.model.fit(
-                self.train_datagen.flow(
-                    self.train_images,
-                    self.y_train,
-                    batch_size=self.config.batch_size,
-                    seed=33,
-                ),
+                self.train_datagen,
                 epochs=self.config.epochs,
                 steps_per_epoch=len(self.train_images) / self.config.batch_size,
                 callbacks=self.callbacks,
-                shuffle=True,
+                shuffle=False,
                 initial_epoch=self.initial_epoch,
+                validation_data=self.valid_datagen
             )
+            
         else:
             self.model.fit(
                 self.train_images,
@@ -106,6 +103,7 @@ class BaseModel:
                 callbacks=self.callbacks,
                 shuffle=True,
                 initial_epoch=self.initial_epoch,
+                validation_split=self.config.validation_split
             )
 
     def predict(self, test_images):
@@ -167,20 +165,67 @@ class BaseModel:
         self.y_train = np.array(self.y_train, dtype=np.float32)
 
         # Create train generator
-        self.train_datagen = None
-        if self.config.image_data_generator:
-            self.train_datagen = ImageDataGenerator(
-                horizontal_flip=self.config.image_data_generator_horizonal_flip,
-                featurewise_center=self.config.image_data_generator_featurewise_center,
-                featurewise_std_normalization=self.config.image_data_generator_featurewise_std_normalization,
-                fill_mode="nearest",
-                zoom_range=self.config.image_data_generator_zoom_range,
-                width_shift_range=self.config.image_data_generator_width_shift_range,
-                height_shift_range=self.config.image_data_generator_height_shift_range,
-                rotation_range=self.config.image_data_generator_rotation_range,
-            )
-            self.train_datagen.fit(self.train_images, augment=False, seed=33)
+        self.generate_datagen()
 
+    def generate_datagen(self):
+        self.train_datagen = None
+        self.y_train_datagen = None
+        if self.config.image_data_generator:
+            classes = []
+            for _ in range(len(self.train_images)):
+                classes.append(0)
+            seed = 33
+            self.train_datagen = ImageDataGenerator(
+                     featurewise_center=self.config.image_data_generator_featurewise_center,
+                     featurewise_std_normalization=self.config.image_data_generator_featurewise_std_normalization,
+                     rotation_range=self.config.image_data_generator_rotation_range,
+                     width_shift_range=self.config.image_data_generator_width_shift_range,
+                     horizontal_flip=self.config.image_data_generator_horizonal_flip,
+                     height_shift_range=self.config.image_data_generator_height_shift_range,
+                     zoom_range=self.config.image_data_generator_zoom_range,
+                     fill_mode='nearest',
+                     validation_split=self.config.validation_split
+            )
+            self.y_train_datagen = ImageDataGenerator(
+                     featurewise_center=self.config.image_data_generator_featurewise_center,
+                     featurewise_std_normalization=self.config.image_data_generator_featurewise_std_normalization,
+                     rotation_range=self.config.image_data_generator_rotation_range,
+                     width_shift_range=self.config.image_data_generator_width_shift_range,
+                     horizontal_flip=self.config.image_data_generator_horizonal_flip,
+                     height_shift_range=self.config.image_data_generator_height_shift_range,
+                     zoom_range=self.config.image_data_generator_zoom_range,
+                     fill_mode='nearest',
+                     validation_split=self.config.validation_split
+            )
+            self.train_datagen.fit(self.train_images, augment=True, seed=seed)
+            self.y_train_datagen.fit(self.y_train, augment=True, seed=seed)
+            self.train_datagen = self.train_datagen.flow(
+                    self.train_images,
+                    batch_size=self.config.batch_size,
+                    seed=seed,
+                    subset="training"
+                    )
+            y_train_gen = self.y_train_datagen.flow(
+                    self.y_train,
+                    batch_size=self.config.batch_size,
+                    seed=seed,
+                    subset="training"
+                    )
+            self.valid_datagen = self.y_train_datagen.flow(
+                    self.train_images,
+                    self.y_train,
+                    batch_size=self.config.batch_size,
+                    seed=seed,
+                    subset="validation"
+                    )
+
+            self.train_datagen = self.create_image_iterator(self.train_datagen, y_train_gen)
+
+    def create_image_iterator(self, train_data_generator, valid_data_generator):
+        gen = zip(train_data_generator, valid_data_generator)
+        for (img, val) in gen:
+            yield (img, val)
+            
     def load_image(self, path, target_shape=(256, 256, 1)):
         mode = self.image_util.get_color_mode(target_shape[2])
         image = self.image_util.load_image(path, mode)

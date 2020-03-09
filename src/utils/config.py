@@ -17,13 +17,15 @@ class Config:
             self.checkpoints_path = self.train["checkpoints_path"]
             self.checkpoint_save_period = self.train["checkpoint_save_period"]
 
-            self.checkpoint_save_best_only = self.train["checkpoint_save_best_only"]
-
             self.checkpoint_path = None
 
             self.loss = None
             self.optimizer = None
+            self.validation_split = 0.2
             self.train_mask_files_path = None
+
+            self.checkpoint_save_best_only = False
+
             self.image_data_generator = None
             self.image_data_generator_horizonal_flip = None
             self.image_data_generator_zoom_range = None
@@ -34,6 +36,11 @@ class Config:
 
             self.test_files_path = None
             self.test_threshold = None
+
+            try:
+                self.validation_split = self.train['validation_split']
+            except:
+                pass
 
             try:
                 self.checkpoint_path = self.train["checkpoint_path"]
@@ -52,6 +59,11 @@ class Config:
 
             try:
                 self.train_mask_files_path = self.train["mask_files_path"]
+            except:
+                pass
+
+            try:
+                self.checkpoint_save_best_only = self.train["checkpoint_save_best_only"]
             except:
                 pass
 

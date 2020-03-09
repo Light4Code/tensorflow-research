@@ -22,7 +22,7 @@ class ImageUtil:
     def load_image(self, image_path, color_mode=-1):
         img = cv2.imread(image_path, color_mode)
         try:
-            if color_mode == self.cv2_color:
+            if color_mode == self.cv2_color or color_mode == self.cv2_unchanged:
                 return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             else:
                 return img
@@ -43,7 +43,7 @@ class ImageUtil:
         return mode
 
     def normalize(self, image, shape):
-        return image.reshape(shape) / 255.0  # create normalizes image
+        return image.reshape(shape)  / 255.0  # create normalizes image
 
     def create_diff(self, original_image, predicted_image):
         diff = original_image - predicted_image
@@ -89,4 +89,3 @@ class ImageUtil:
                 mask_index += 1
             masks.append(mask)
         return masks
-

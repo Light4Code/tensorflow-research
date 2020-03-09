@@ -1,10 +1,11 @@
-import tensorflow as tf
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
-import matplotlib.pyplot as plt
+import tensorflow as tf
 from tensorflow.keras.layers import BatchNormalization, Dense, Flatten, Reshape
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
+
 from models import BaseModel
 
 
@@ -26,13 +27,16 @@ class FastModel(BaseModel):
             translator_layer_size = 100
             middle_layer_size = 16
 
+        sub_layer_size = int(translator_layer_size / 2)
         input_dim = input_shape[0] * input_shape[1] * input_shape[2]
         input = tf.keras.Input(input_shape, name=self.input_name)
         x = input
         x = Flatten()(x)
         x = BatchNormalization()(x)
         x = Dense(translator_layer_size, activation="relu", name="encoder")(x)
+        x = Dense(sub_layer_size, activation="relu")(x)
         x = Dense(middle_layer_size, activation="relu")(x)
+        x = Dense(sub_layer_size, activation="relu")(x)
         x = BatchNormalization()(x)
         x = Dense(translator_layer_size, activation="relu", name="decoder")(x)
         x = Dense(input_dim, activation="sigmoid", name="reconstructor")(x)
