@@ -1,7 +1,7 @@
 {
   "input_shape": [512, 512, 3],
+  "model": "fast",
   "train": {
-    "model": "fast",
     "batch_size": 40,
     "epochs": 100,
     "learning_rate": 1e-4,
@@ -28,5 +28,14 @@
   "test": {
     "files_path": "PATH_TO_TEST_FILE",
     "threshold": 0.45
+  },
+  "image_data_generator": {
+    "horizontal_flip": true,
+    "featurewise_center": false,
+    "featurewise_std_normalization": false,
+    "zoom_range": 0.3,
+    "width_shift_range": 0.3,
+    "height_shift_range": 0.3,
+    "rotation_range": 10
   }
 }

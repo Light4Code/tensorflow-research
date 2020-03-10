@@ -40,7 +40,7 @@ def main():
     if args.model:
         config.model = args.model
     if args.checkpoint_path:
-        config.checkpoint_path = args.checkpoint_path
+        config.train.checkpoint_path = args.checkpoint_path
     if args.test_files_path:
         config.test_files_path = args.test_files_path
 

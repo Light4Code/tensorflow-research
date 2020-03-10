@@ -93,6 +93,7 @@ def main():
         images, masks = generate_images(config, image_util, output_path, r, d["class_name"], d["images"], d["masks"])
         d["images"] = images
         d["masks"] = masks
+        print("Finished round (" + str(r+1) + "/" + str(rounds) + ")")
 
 def generate_images(config, image_util, output_path, prefix, class_name, images, masks):
     images_output_path = output_path + "/" + class_name
@@ -117,13 +118,13 @@ def generate_images(config, image_util, output_path, prefix, class_name, images,
     new_masks = []
 
     image_data_generator = tf.keras.preprocessing.image.ImageDataGenerator(
-        featurewise_center=config.image_data_generator_featurewise_center,
-        featurewise_std_normalization=config.image_data_generator_featurewise_std_normalization,
-        rotation_range=config.image_data_generator_rotation_range,
-        width_shift_range=config.image_data_generator_width_shift_range,
-        horizontal_flip=config.image_data_generator_horizonal_flip,
-        height_shift_range=config.image_data_generator_height_shift_range,
-        zoom_range=config.image_data_generator_zoom_range,
+        featurewise_center=config.image_data_generator.featurewise_center,
+        featurewise_std_normalization=config.image_data_generator.featurewise_std_normalization,
+        rotation_range=config.image_data_generator.rotation_range,
+        width_shift_range=config.image_data_generator.width_shift_range,
+        horizontal_flip=config.image_data_generator.horizonal_flip,
+        height_shift_range=config.image_data_generator.height_shift_range,
+        zoom_range=config.image_data_generator.zoom_range,
         fill_mode='nearest',
     )
 
@@ -143,13 +144,13 @@ def generate_images(config, image_util, output_path, prefix, class_name, images,
 
     if len(masks) > 0:
         mask_data_generator = tf.keras.preprocessing.image.ImageDataGenerator(
-            featurewise_center=config.image_data_generator_featurewise_center,
-            featurewise_std_normalization=config.image_data_generator_featurewise_std_normalization,
-            rotation_range=config.image_data_generator_rotation_range,
-            width_shift_range=config.image_data_generator_width_shift_range,
-            horizontal_flip=config.image_data_generator_horizonal_flip,
-            height_shift_range=config.image_data_generator_height_shift_range,
-            zoom_range=config.image_data_generator_zoom_range,
+            featurewise_center=config.image_data_generator.featurewise_center,
+            featurewise_std_normalization=config.image_data_generator.featurewise_std_normalization,
+            rotation_range=config.image_data_generator.rotation_range,
+            width_shift_range=config.image_data_generator.width_shift_range,
+            horizontal_flip=config.image_data_generator.horizonal_flip,
+            height_shift_range=config.image_data_generator.height_shift_range,
+            zoom_range=config.image_data_generator.zoom_range,
             fill_mode='nearest',
         )
         mask_data_generator.fit(resized_masks, augment=True, seed=seed)

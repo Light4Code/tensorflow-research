@@ -41,7 +41,7 @@ def main():
     if not args.checkpoint_path:
         ValueError
     else:
-        config.checkpoint_path = args.checkpoint_path
+        config.train.checkpoint_path = args.checkpoint_path
 
     model_container = create_model(config)
 

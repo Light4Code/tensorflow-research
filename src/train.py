@@ -89,25 +89,25 @@ def main():
 
     # Overwrite config
     if args.train_files_path:
-        config.train_files_path = args.train_files_path
+        config.train.files_path = args.train_files_path
     if args.train_mask_files_path:
-        config.train_mask_files_path = args.train_mask_files_path
+        config.train.mask_files_path = args.train_mask_files_path
     if args.test_file_path:
         config.test_file_path = args.test_file_path
     if args.test_threshold:
         config.test_threshold = args.test_threshold
     if args.epochs:
-        config.epochs = args.epochs
+        config.train.epochs = args.epochs
     if args.loss:
-        config.loss = args.loss
+        config.train.loss = args.loss
     if args.model:
         config.model = args.model
     if args.batch_size:
-        config.batch_size = args.batch_size
+        config.train.batch_size = args.batch_size
     if args.learning_rate:
-        config.learning_rate = args.learning_rate
+        config.train.learning_rate = args.learning_rate
     if args.checkpoint_path:
-        config.checkpoint_path = args.checkpoint_path
+        config.train.checkpoint_path = args.checkpoint_path
 
     # Set seed to get reproducable experiments
     seed_value = 33

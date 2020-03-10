@@ -1,104 +1,81 @@
 import json
 
 
+def get_entry(root_node, entry_name, default_value):
+    node = default_value
+    try:
+        node = root_node[entry_name]
+    except:
+        pass
+    return node
+
+class ImageGeneratorConfig:
+    def __init__(self, root_node):
+        super().__init__()
+        self.horizonal_flip = get_entry(root_node, "horizontal_flip", False)
+        self.zoom_range = get_entry(root_node, "zoom_range", 0)
+        self.width_shift_range = get_entry(root_node, "width_shift_range", 0)
+        self.height_shift_range = get_entry(root_node, "height_shift_range", 0)
+        self.rotation_range = get_entry(root_node, "rotation_range", 0)
+        self.featurewise_center = get_entry(root_node, "featurewise_center", False)
+        self.featurewise_std_normalization = get_entry(root_node, "featurewise_std_normalization", False)
+
+class TrainConfig:
+    def __init__(self, root_node):
+        super().__init__()
+        self.files_path = get_entry(root_node, "files_path", None)
+
+        self.epochs = get_entry(root_node, "epochs", 10)
+        self.batch_size = get_entry(root_node, "batch_size", 1)
+        self.learning_rate = get_entry(root_node, "learning_rate", 1e-4)
+        self.loss = get_entry(root_node, "loss", None)
+        self.optimizer = get_entry(root_node, "optimizer", None)
+        self.validation_split = get_entry(root_node, "validation_split", 0.2)
+        self.mask_files_path = get_entry(root_node, "mask_files_path", None)
+        self.checkpoint_save_best_only = get_entry(root_node, "checkpoint_save_best_onky", False)
+        self.checkpoint_path = get_entry(root_node, "checkpoint_path", None)
+        self.checkpoints_path = get_entry(root_node, "checkpoints_path", None)
+        self.checkpoint_save_period = get_entry(root_node, "checkpoint_save_period", 10)
+        
+        if not self.files_path:
+            raise ValueError("Configuration needs the path to the training files!")
+
+        try:
+            self.image_data_generator = ImageGeneratorConfig(root_node["image_data_generator"])
+        except:
+            self.image_data_generator = None
+
 class Config:
     def __init__(self, config_path):
         super().__init__()
         with open(config_path) as json_file:
             data = json.load(json_file)
             self.input_shape = data["input_shape"]
+            self.model = get_entry(data, "model", None)
+
+            if not self.model:
+                raise ValueError("Configuration needs the model name!")
 
             self.train = data["train"]
-            self.model = self.train["model"]
-            self.train_files_path = self.train["files_path"]
-            self.batch_size = self.train["batch_size"]
-            self.epochs = self.train["epochs"]
-            self.learning_rate = self.train["learning_rate"]
-            self.checkpoints_path = self.train["checkpoints_path"]
-            self.checkpoint_save_period = self.train["checkpoint_save_period"]
-
-            self.checkpoint_path = None
-
-            self.loss = None
-            self.optimizer = None
-            self.validation_split = 0.2
-            self.train_mask_files_path = None
-
-            self.checkpoint_save_best_only = False
-
-            self.image_data_generator = None
-            self.image_data_generator_horizonal_flip = None
-            self.image_data_generator_zoom_range = None
-            self.image_data_generator_width_shift_range = None
-            self.image_data_generator_height_shift_range = None
-            self.image_data_generator_rotation_range = None
-            self.image_data_generator_featurewise_center = None
-
             self.test_files_path = None
             self.test_threshold = None
-
-            try:
-                self.validation_split = self.train['validation_split']
-            except:
-                pass
-
-            try:
-                self.checkpoint_path = self.train["checkpoint_path"]
-            except:
-                pass
-
-            try:
-                self.loss = self.train["loss"]
-            except:
-                pass
-
-            try:
-                self.optimizer = self.train["optimizer"]
-            except:
-                pass
-
-            try:
-                self.train_mask_files_path = self.train["mask_files_path"]
-            except:
-                pass
-
-            try:
-                self.checkpoint_save_best_only = self.train["checkpoint_save_best_only"]
-            except:
-                pass
-
-            try:
-                self.image_data_generator = self.train["image_data_generator"]
-                self.image_data_generator_horizonal_flip = self.image_data_generator[
-                    "horizontal_flip"
-                ]
-                self.image_data_generator_zoom_range = self.image_data_generator[
-                    "zoom_range"
-                ]
-                self.image_data_generator_width_shift_range = self.image_data_generator[
-                    "width_shift_range"
-                ]
-                self.image_data_generator_height_shift_range = self.image_data_generator[
-                    "height_shift_range"
-                ]
-                self.image_data_generator_rotation_range = self.image_data_generator[
-                    "rotation_range"
-                ]
-                self.image_data_generator_featurewise_center = self.image_data_generator[
-                    "featurewise_center"
-                ]
-                self.image_data_generator_featurewise_std_normalization = self.image_data_generator[
-                    "featurewise_std_normalization"
-                ]
-            except:
-                pass
 
             try:
                 test = data["test"]
                 self.test_files_path = test["files_path"]
                 try:
-                    self.test_threshold = test["test_threshold"]
+                    self.test_threshold = test["threshold"]
                 except:
                     pass
             except:
                 pass
+
+            try:
+                self.train = TrainConfig(data["train"])
+            except:
+                raise ValueError("Could not create train configuration!")
+
+            try:
+                self.image_data_generator = ImageGeneratorConfig(data["image_data_generator"])
+            except:
+                self.image_data_generator = None

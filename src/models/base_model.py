@@ -24,13 +24,13 @@ class BaseModel:
         self.prepare_training()
         self.create_callbacks()
         self.create_model()
-        if self.config.optimizer:
-            self.create_optimizer(optimizer=self.config.optimizer)
+        if self.config.train.optimizer:
+            self.create_optimizer(optimizer=self.config.train.optimizer)
         else:
             self.create_optimizer()
 
-        if self.config.loss:
-            self.compile(loss=self.config.loss)
+        if self.config.train.loss:
+            self.compile(loss=self.config.train.loss)
         else:
             self.compile()
         self.load_weights()
@@ -48,9 +48,9 @@ class BaseModel:
             ValueError
 
         if optimizer == "adam":
-            self.optimizer = Adam(lr=self.config.learning_rate)
+            self.optimizer = Adam(lr=self.config.train.learning_rate)
         elif optimizer == "sgd":
-            self.optimizer = SGD(lr=self.config.learning_rate, momentum=0.99)
+            self.optimizer = SGD(lr=self.config.train.learning_rate, momentum=0.99)
         else:
             ValueError
 
@@ -58,25 +58,25 @@ class BaseModel:
 
     def create_callbacks(self):
         self.callbacks = []
-        if self.config.checkpoints_path:
+        if self.config.train.checkpoints_path:
             self.callbacks.append(
                 ModelCheckpoint(
-                    self.config.checkpoints_path + "/model-{epoch:04d}.ckpts",
-                    save_freq=self.config.checkpoint_save_period
+                    self.config.train.checkpoints_path + "/model-{epoch:04d}.ckpts",
+                    save_freq=self.config.train.checkpoint_save_period
                     * len(self.train_images),
                     save_weights_only=True,
-                    save_best_only=self.config.checkpoint_save_best_only,
+                    save_best_only=self.config.train.checkpoint_save_best_only,
                 )
             )
 
     def load_weights(self):
-        if self.config.checkpoint_path:
-            self.model.load_weights(self.config.checkpoint_path)
+        if self.config.train.checkpoint_path:
+            self.model.load_weights(self.config.train.checkpoint_path)
             try:
-                checkpoint_name = os.path.basename(self.config.checkpoint_path)
+                checkpoint_name = os.path.basename(self.config.train.checkpoint_path)
                 last_epoch = re.findall(r"\b\d+\b", checkpoint_name)[0]
                 self.initial_epoch = int(last_epoch)
-                self.config.epochs += self.initial_epoch
+                self.config.train.epochs += self.initial_epoch
             except:
                 print(
                     "Could not read checkpoint epoch information, will continue with epoch 0!"
@@ -86,8 +86,8 @@ class BaseModel:
         if not self.train_datagen == None:
             self.model.fit(
                 self.train_datagen,
-                epochs=self.config.epochs,
-                steps_per_epoch=len(self.train_images) / self.config.batch_size,
+                epochs=self.config.train.epochs,
+                steps_per_epoch=len(self.train_images) / self.config.train.batch_size,
                 callbacks=self.callbacks,
                 shuffle=False,
                 initial_epoch=self.initial_epoch,
@@ -98,12 +98,12 @@ class BaseModel:
             self.model.fit(
                 self.train_images,
                 self.y_train,
-                batch_size=self.config.batch_size,
-                epochs=self.config.epochs,
+                batch_size=self.config.train.batch_size,
+                epochs=self.config.train.epochs,
                 callbacks=self.callbacks,
                 shuffle=True,
                 initial_epoch=self.initial_epoch,
-                validation_split=self.config.validation_split
+                validation_split=self.config.train.validation_split
             )
 
     def predict(self, test_images):
@@ -149,10 +149,10 @@ class BaseModel:
         self.train_images = None
         self.y_train = None
         self.train_images = self.load_images(
-            self.config.train_files_path, self.config.input_shape
+            self.config.train.files_path, self.config.input_shape
         )
         self.train_images = np.array(self.train_images, dtype=np.float32)
-        if self.config.train_mask_files_path:
+        if self.config.train.mask_files_path:
             original_masks = self.image_util.create_mask_images(self.config)
             masks = []
             for m in original_masks:
@@ -170,7 +170,7 @@ class BaseModel:
     def generate_datagen(self):
         self.train_datagen = None
         self.y_train_datagen = None
-        if self.config.image_data_generator:
+        if self.config.train.image_data_generator:
             classes = []
             for _ in range(len(self.train_images)):
                 classes.append(0)
@@ -184,7 +184,7 @@ class BaseModel:
                      height_shift_range=self.config.image_data_generator_height_shift_range,
                      zoom_range=self.config.image_data_generator_zoom_range,
                      fill_mode='nearest',
-                     validation_split=self.config.validation_split
+                     validation_split=self.config.train.validation_split
             )
             self.y_train_datagen = ImageDataGenerator(
                      featurewise_center=self.config.image_data_generator_featurewise_center,
@@ -195,26 +195,26 @@ class BaseModel:
                      height_shift_range=self.config.image_data_generator_height_shift_range,
                      zoom_range=self.config.image_data_generator_zoom_range,
                      fill_mode='nearest',
-                     validation_split=self.config.validation_split
+                     validation_split=self.config.train.validation_split
             )
             self.train_datagen.fit(self.train_images, augment=True, seed=seed)
             self.y_train_datagen.fit(self.y_train, augment=True, seed=seed)
             self.train_datagen = self.train_datagen.flow(
                     self.train_images,
-                    batch_size=self.config.batch_size,
+                    batch_size=self.config.train.batch_size,
                     seed=seed,
                     subset="training"
                     )
             y_train_gen = self.y_train_datagen.flow(
                     self.y_train,
-                    batch_size=self.config.batch_size,
+                    batch_size=self.config.train.batch_size,
                     seed=seed,
                     subset="training"
                     )
             self.valid_datagen = self.y_train_datagen.flow(
                     self.train_images,
                     self.y_train,
-                    batch_size=self.config.batch_size,
+                    batch_size=self.config.train.batch_size,
                     seed=seed,
                     subset="validation"
                     )

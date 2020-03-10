@@ -58,8 +58,8 @@ class ImageUtil:
         return np.zeros(shape)
 
     def create_mask_images(self, config):
-        train_images_path = config.train_files_path
-        mask_images_path = config.train_mask_files_path
+        train_images_path = config.train.files_path
+        mask_images_path = config.train.mask_files_path
         train_file_names = glob.glob(train_images_path + "/*.png")
         original_mask_file_names = glob.glob(mask_images_path + "/*.png")
         mask_file_names = []
