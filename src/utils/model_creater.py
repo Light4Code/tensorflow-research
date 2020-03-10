@@ -5,8 +5,10 @@ from models.segmentation import *
 def create_model(config):
     if config.model == "deep_autoencoder":
         model_container = DeepAutoencoderModel(config)
-    elif config.model == "convolutional_autoencoder":
-        model_container = ConvolutionalAutoencoderModel(config)
+    elif config.model == "custom_conv_autoencoder":
+        model_container = CustomConvAutoencoderModel(config)
+    elif config.model == "conv_autoencoder":
+        model_container = ConvAutoencoderModel(config)
     elif config.model == "small_unet":
         model_container = SmallUnetModel(config)
     elif config.model == "satellite_unet":

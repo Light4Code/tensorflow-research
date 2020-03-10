@@ -1,2 +1,3 @@
-from .convolutional_autoencoder_model import ConvolutionalAutoencoderModel
+from .conv_autoencoder_model import ConvAutoencoderModel
+from .custom_conv_autoencoder_model import CustomConvAutoencoderModel
 from .deep_autoencoder_model import DeepAutoencoderModel

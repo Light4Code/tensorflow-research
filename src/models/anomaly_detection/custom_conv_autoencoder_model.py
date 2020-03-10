@@ -7,13 +7,12 @@ from tensorflow.keras.layers import (Activation, BatchNormalization, Conv2D,
                                      Conv2DTranspose, Dense, Flatten,
                                      LeakyReLU, Reshape)
 from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
 
 from models import BaseModel
 from utils.plots import *
 
 
-class ConvolutionalAutoencoderModel(BaseModel):
+class CustomConvAutoencoderModel(BaseModel):
     def __init__(self, config):
         super().__init__(config)
 
@@ -23,14 +22,24 @@ class ConvolutionalAutoencoderModel(BaseModel):
     def compile(self, loss="mse"):
         self.model.compile(loss=loss, optimizer=self.optimizer, metrics=["accuracy"])
 
+    def plot_predictions(self, test_images):
+        plot_difference(self.config, self.predictions, test_images)
+        
     def create_model(self):
         filters = (32, 64)
         kernel_size = (3,3)
+        latent_dim = 16
+        leak_alpha = 0.1
         try:
-            model_config = self.config.train.raw["convolutional_autoencoder_model"]
+            model_config = self.config.train.raw["custom_conv_autoencoder_model"]
             latent_dim = model_config["latent_dim"]
+            leak_alpha = model_config["leak_alpha"]
+            filter_count = model_config["filters"]
+            filter_size = model_config["filter_size"]
+            filters = (filter_count, filter_size)
+            kernel_size = (model_config["kernel_size"],model_config["kernel_size"])
         except:
-            latent_dim = 16
+            pass
             
 
         input_shape = self.config.input_shape
@@ -38,7 +47,7 @@ class ConvolutionalAutoencoderModel(BaseModel):
         x = inputs
         for f in filters:
             x = Conv2D(filters=f, kernel_size=kernel_size, strides=2, padding="same")(x)
-            x = LeakyReLU(alpha=0.2)(x)
+            x = LeakyReLU(alpha=leak_alpha)(x)
             x = BatchNormalization(axis=input_shape[2])(x)
         volume_size = tf.keras.backend.int_shape(x)
         x = Flatten()(x)
@@ -52,7 +61,7 @@ class ConvolutionalAutoencoderModel(BaseModel):
             x = Conv2DTranspose(
                 filters=f, kernel_size=kernel_size, strides=2, padding="same"
             )(x)
-            x = LeakyReLU(alpha=0.2)(x)
+            x = LeakyReLU(alpha=leak_alpha)(x)
             x = BatchNormalization(axis=input_shape[2])(x)
         x = Conv2DTranspose(filters=input_shape[2], kernel_size=kernel_size, padding="same")(
             x
@@ -62,6 +71,3 @@ class ConvolutionalAutoencoderModel(BaseModel):
 
         self.model = Model(inputs, decoder(encoder(inputs)), name="autoencoder")
         return self.model
-
-    def plot_predictions(self, test_images):
-        plot_difference(self.config, self.predictions, test_images)

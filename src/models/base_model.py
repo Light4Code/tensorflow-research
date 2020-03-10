@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
 from tensorflow.keras.callbacks import ModelCheckpoint
-from tensorflow.keras.optimizers import SGD, Adam
+from tensorflow.keras.optimizers import SGD, Adadelta, Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from utils import *
@@ -26,7 +26,7 @@ class BaseModel:
         self.create_callbacks()
         self.create_model()
         if self.config.train.optimizer:
-            self.create_optimizer(optimizer=self.config.train.optimizer)
+            self.create_optimizer(self.config.train.optimizer)
         else:
             self.create_optimizer()
 
@@ -40,20 +40,21 @@ class BaseModel:
     def create_model(self):
         return
 
-    @abc.abstractmethod
     def compile(self, loss=None):
-        return
+        self.model.compile(loss=loss, optimizer=self.optimizer, metrics=["accuracy"])
 
     def create_optimizer(self, optimizer=None):
         if not optimizer:
-            ValueError
+            raise ValueError
 
         if optimizer == "adam":
             self.optimizer = Adam(lr=self.config.train.learning_rate)
         elif optimizer == "sgd":
             self.optimizer = SGD(lr=self.config.train.learning_rate, momentum=0.99)
+        elif optimizer == "adadelta":
+            self.optimizer = Adadelta(lr=self.config.train.learning_rate)
         else:
-            ValueError
+            raise ValueError
 
         self.optimizer_name = optimizer
 
