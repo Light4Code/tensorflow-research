@@ -1,34 +1,43 @@
+import matplotlib.pyplot as plt
 import numpy as np
+import numpy.ma as ma
 import tensorflow as tf
 from tensorflow.keras import Input
-from tensorflow.keras.layers import (
-    Activation,
-    BatchNormalization,
-    Conv2D,
-    Conv2DTranspose,
-    Dense,
-    Flatten,
-    LeakyReLU,
-    Reshape,
-)
+from tensorflow.keras.layers import (Activation, BatchNormalization, Conv2D,
+                                     Conv2DTranspose, Dense, Flatten,
+                                     LeakyReLU, Reshape)
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
+
 from models import BaseModel
+from utils.plots import *
 
 
-class AdvancedModel(BaseModel):
+class ConvolutionalAutoencoderModel(BaseModel):
     def __init__(self, config):
         super().__init__(config)
 
     def create_optimizer(self, optimzer="adam"):
         super().create_optimizer(optimzer)
 
-    def create_model(self, filters=(32, 64), latent_dim=16):
+    def compile(self, loss="mse"):
+        self.model.compile(loss=loss, optimizer=self.optimizer, metrics=["accuracy"])
+
+    def create_model(self):
+        filters = (32, 64)
+        kernel_size = (3,3)
+        try:
+            model_config = self.config.train.raw["convolutional_autoencoder_model"]
+            latent_dim = model_config["latent_dim"]
+        except:
+            latent_dim = 16
+            
+
         input_shape = self.config.input_shape
         inputs = Input(shape=input_shape, name=self.input_name)
         x = inputs
         for f in filters:
-            x = Conv2D(filters=f, kernel_size=(3, 3), strides=2, padding="same")(x)
+            x = Conv2D(filters=f, kernel_size=kernel_size, strides=2, padding="same")(x)
             x = LeakyReLU(alpha=0.2)(x)
             x = BatchNormalization(axis=input_shape[2])(x)
         volume_size = tf.keras.backend.int_shape(x)
@@ -41,11 +50,11 @@ class AdvancedModel(BaseModel):
         x = Reshape((volume_size[1], volume_size[2], volume_size[3]))(x)
         for f in filters[::-1]:
             x = Conv2DTranspose(
-                filters=f, kernel_size=(3, 3), strides=2, padding="same"
+                filters=f, kernel_size=kernel_size, strides=2, padding="same"
             )(x)
             x = LeakyReLU(alpha=0.2)(x)
             x = BatchNormalization(axis=input_shape[2])(x)
-        x = Conv2DTranspose(filters=input_shape[2], kernel_size=(3, 3), padding="same")(
+        x = Conv2DTranspose(filters=input_shape[2], kernel_size=kernel_size, padding="same")(
             x
         )
         outputs = Activation("sigmoid", name=self.output_name)(x)  # Decoded
@@ -54,9 +63,5 @@ class AdvancedModel(BaseModel):
         self.model = Model(inputs, decoder(encoder(inputs)), name="autoencoder")
         return self.model
 
-    def overwrite_optimizer(self, optimizer, optimizer_name):
-        self.optimzer = optimizer
-        self.optimizer_name = optimizer_name
-
-    def compile(self, loss="mse"):
-        self.model.compile(loss=loss, optimizer=self.optimizer, metrics=["accuracy"])
+    def plot_predictions(self, test_images):
+        plot_difference(self.config, self.predictions, test_images)

@@ -1,12 +1,12 @@
-from models.segmentation import *
 from models.anomaly_detection import *
+from models.segmentation import *
 
 
 def create_model(config):
-    if config.model == "fast":
-        model_container = FastModel(config)
-    elif config.model == "advanced":
-        model_container = AdvancedModel(config)
+    if config.model == "deep_autoencoder":
+        model_container = DeepAutoencoderModel(config)
+    elif config.model == "convolutional_autoencoder":
+        model_container = ConvolutionalAutoencoderModel(config)
     elif config.model == "small_unet":
         model_container = SmallUnetModel(config)
     elif config.model == "satellite_unet":

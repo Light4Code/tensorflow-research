@@ -27,8 +27,8 @@ python src/export.py config/sample.json --checkpoint_path PATH_TO_CHECKPOINT --o
 ## Models
 ### Anomaly detection
 Anomaly detection will use a autoencoder approche, the prediction substratced from the original image should show the anomaly.
-- Fast: Simple 1D prediction
-- Advanced: Simple 2D prediction
+- Deep Autoencoder: Simple 1D autoencoder
+- Convolutional Autoencoder
 ### Segmentation
 #### Unet
 - [Vanilla Unet](https://arxiv.org/pdf/1505.04597.pdf) (original paper)

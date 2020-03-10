@@ -12,6 +12,7 @@ def get_entry(root_node, entry_name, default_value):
 class ImageGeneratorConfig:
     def __init__(self, root_node):
         super().__init__()
+        self.raw = root_node
         self.horizonal_flip = get_entry(root_node, "horizontal_flip", False)
         self.zoom_range = get_entry(root_node, "zoom_range", 0)
         self.width_shift_range = get_entry(root_node, "width_shift_range", 0)
@@ -23,6 +24,7 @@ class ImageGeneratorConfig:
 class TrainConfig:
     def __init__(self, root_node):
         super().__init__()
+        self.raw = root_node
         self.files_path = get_entry(root_node, "files_path", None)
 
         self.epochs = get_entry(root_node, "epochs", 10)

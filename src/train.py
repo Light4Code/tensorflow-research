@@ -82,10 +82,18 @@ def main():
         metavar="path",
         help="Overwrites the path to the saved checkpoint containing the model weights",
     )
+    parser.add_argument(
+        "--plot_history",
+        dest="plot_history",
+        metavar="boolean (default: false)",
+        type=bool,
+        help="Plots the model training history",
+    )
 
     args = parser.parse_args()
     config_path = args.config
     config = Config(config_path)
+    plot_history = False
 
     # Overwrite config
     if args.train_files_path:
@@ -109,6 +117,9 @@ def main():
     if args.checkpoint_path:
         config.train.checkpoint_path = args.checkpoint_path
 
+    if args.plot_history:
+        plot_history = True
+
     # Set seed to get reproducable experiments
     seed_value = 33
     os.environ["PYTHONHASHSEED"] = str(seed_value)
@@ -128,7 +139,26 @@ def main():
 
     # ToDo: Train model
     model.train()
+    history = model.history
+    epochs = len(history.epoch) + model.initial_epoch
+    model.model.save_weights(config.train.checkpoints_path + "/model-{0:04d}.ckpts".format(epochs))
 
+    if plot_history:
+        plt.subplot(121)
+        plt.plot(history.history['accuracy'])
+        plt.plot(history.history['val_accuracy'])
+        plt.title('Model accuracy')
+        plt.ylabel('Accuracy')
+        plt.xlabel('Epoch')
+        plt.legend(['Train', 'Test'], loc='upper left')
+        plt.subplot(122)
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title('Model loss')
+        plt.ylabel('Loss')
+        plt.xlabel('Epoch')
+        plt.legend(['Train', 'Test'], loc='upper left')
+        plt.show()
 
 if __name__ == "__main__":
     main()

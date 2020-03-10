@@ -96,6 +96,7 @@ def main():
         print("Finished round (" + str(r+1) + "/" + str(rounds) + ")")
 
 def generate_images(config, image_util, output_path, prefix, class_name, images, masks):
+    prefix = str(prefix) + "_" + class_name
     images_output_path = output_path + "/" + class_name
     masks_output_path = images_output_path + "/masks"
 

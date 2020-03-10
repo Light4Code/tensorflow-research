@@ -1,2 +1,2 @@
-from .advanced_model import AdvancedModel
-from .fast_model import FastModel
+from .convolutional_autoencoder_model import ConvolutionalAutoencoderModel
+from .deep_autoencoder_model import DeepAutoencoderModel
