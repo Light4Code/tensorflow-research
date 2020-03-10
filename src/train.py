@@ -141,24 +141,27 @@ def main():
     model.train()
     history = model.history
     epochs = len(history.epoch) + model.initial_epoch
-    model.model.save_weights(config.train.checkpoints_path + "/model-{0:04d}.ckpts".format(epochs))
+    model.model.save_weights(
+        config.train.checkpoints_path + "/model-{0:04d}.ckpts".format(epochs)
+    )
 
     if plot_history:
-        plt.subplot(121)
-        plt.plot(history.history['accuracy'])
-        plt.plot(history.history['val_accuracy'])
-        plt.title('Model accuracy')
-        plt.ylabel('Accuracy')
-        plt.xlabel('Epoch')
-        plt.legend(['Train', 'Test'], loc='upper left')
-        plt.subplot(122)
-        plt.plot(history.history['loss'])
-        plt.plot(history.history['val_loss'])
-        plt.title('Model loss')
-        plt.ylabel('Loss')
-        plt.xlabel('Epoch')
-        plt.legend(['Train', 'Test'], loc='upper left')
+        plt.subplot(211)
+        plt.plot(history.history["accuracy"])
+        plt.plot(history.history["val_accuracy"])
+        plt.title("Model accuracy")
+        plt.ylabel("Accuracy")
+        plt.xlabel("Epoch")
+        plt.legend(["Train", "Test"], loc="upper left")
+        plt.subplot(212)
+        plt.plot(history.history["loss"])
+        plt.plot(history.history["val_loss"])
+        plt.title("Model loss")
+        plt.ylabel("Loss")
+        plt.xlabel("Epoch")
+        plt.legend(["Train", "Test"], loc="upper left")
         plt.show()
+
 
 if __name__ == "__main__":
     main()
