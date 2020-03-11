@@ -1,4 +1,5 @@
 from models.anomaly_detection import *
+from models.classification import *
 from models.segmentation import *
 
 
@@ -17,6 +18,8 @@ def create_model(config):
         model_container = CustomUnetModel(config)
     elif config.model == "vanilla_unet":
         model_container = VanillaUnetModel(config)
+    elif config.model == "conv_classification":
+        model_container = ConvClassificationModel(config)
     else:
         TypeError
 

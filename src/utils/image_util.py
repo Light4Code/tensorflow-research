@@ -46,8 +46,7 @@ class ImageUtil:
         return image.reshape(shape)  / 255.0  # create normalizes image
 
     def create_diff(self, original_image, predicted_image):
-        diff = original_image - predicted_image
-        return np.abs(diff)
+        return cv2.absdiff(original_image, predicted_image)
 
     def apply_threshold(self, diff_image, threshold):
         diff_image[diff_image < threshold] = 0

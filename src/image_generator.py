@@ -7,6 +7,7 @@ import argparse
 import os
 from glob import glob
 
+import cv2
 import numpy as np
 import tensorflow as tf
 
@@ -46,18 +47,35 @@ def main():
         type=int,
         help="How many times the same folder should be generated",
     )
+    parser.add_argument(
+        "--original_image_path",
+        dest="original_image_path",
+        metavar="path",
+        help="Path to the original image. If set, difference images will be created."
+    )
 
 
     args = parser.parse_args()
     config_path = args.config
     input_path = args.input_path
     output_path = args.output_path
+    original_image_path = None
     rounds = 1
     if args.rounds:
       rounds = args.rounds
+    if args.original_image_path:
+      original_image_path = args.original_image_path
+
 
     config = Config(config_path)
     image_util = ImageUtil()
+
+    original_image = None
+    use_original_image = False
+    if original_image_path:
+      original_image = image_util.load_image(original_image_path)
+      original_image = image_util.resize_image(original_image, config.input_shape[1], config.input_shape[0])
+      use_original_image = True
 
     class_dirs = []
     for di in glob(input_path + "/*"):
@@ -90,10 +108,13 @@ def main():
     
     for r in range(rounds):
       for d in image_dictionary:
-        images, masks = generate_images(config, image_util, output_path, r, d["class_name"], d["images"], d["masks"])
+        class_name = d["class_name"]
+        images, masks = generate_images(config, image_util, output_path, r, class_name, d["images"], d["masks"])
+        if use_original_image:
+          create_difference_images(original_image, images, output_path + "/diff/" + class_name, r)
         d["images"] = images
         d["masks"] = masks
-        print("Finished round (" + str(r+1) + "/" + str(rounds) + ")")
+      print("Finished round (" + str(r+1) + "/" + str(rounds) + ")")
 
 def generate_images(config, image_util, output_path, prefix, class_name, images, masks):
     prefix = str(prefix) + "_" + class_name
@@ -141,7 +162,7 @@ def generate_images(config, image_util, output_path, prefix, class_name, images,
 
     for _ in range(image_data_flow.n):
       img = image_data_flow.next()
-      new_images.append(img[0])
+      new_images.append(np.array(img[0], dtype=np.uint8))
 
     if len(masks) > 0:
         mask_data_generator = tf.keras.preprocessing.image.ImageDataGenerator(
@@ -164,9 +185,17 @@ def generate_images(config, image_util, output_path, prefix, class_name, images,
         )
         for _ in range(mask_data_flow.n):
           ma = mask_data_flow.next()
-          new_masks.append(ma[0])
+          new_masks.append(np.array(ma[0], dtype=np.uint8))
     return (new_images, new_masks)
 
+def create_difference_images(original_image, images, output_path, round_index):
+  if not os.path.exists(output_path):
+      os.makedirs(output_path)
+  img_count = 0
+  for img in images:
+    diff = cv2.absdiff(original_image, img)
+    cv2.imwrite("{0}/diff_{1}_{2}.png".format(output_path, round_index, img_count), diff)
+    img_count += 1
 
 if __name__ == "__main__":
     main()
