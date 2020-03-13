@@ -1,10 +1,13 @@
 import argparse
-from utils import *
+import os
+
 import tensorflow as tf
-from tensorflow.lite.python.util import run_graph_optimizations, get_grappler_config
-from tensorflow.python.framework.convert_to_constants import (
-    convert_variables_to_constants_v2,
-)
+from tensorflow.lite.python.util import (get_grappler_config,
+                                         run_graph_optimizations)
+from tensorflow.python.framework.convert_to_constants import \
+    convert_variables_to_constants_v2
+
+from utils import *
 
 
 def main():
@@ -44,11 +47,15 @@ def main():
         config.train.checkpoint_path = args.checkpoint_path
 
     model_container = create_model(config)
+    output_path = args.output_path
 
-    tf.saved_model.save(model_container.model, args.output_path)
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+    tf.saved_model.save(model_container.model, output_path)
     graph_def = frozen_keras_graph(model_container.model)
     if args.save_frozen_graph and args.save_frozen_graph == True:
-        tf.io.write_graph(graph_def, ".", args.output_path + "/frozen_graph.pb")
+        tf.io.write_graph(graph_def, ".", output_path + "/frozen_graph.pb")
 
 
 def frozen_keras_graph(model):
