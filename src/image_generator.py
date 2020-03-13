@@ -106,17 +106,26 @@ def main():
             image_dictionary.append(d)
             class_count += 1
     
+    image_data_generator = tf.keras.preprocessing.image.ImageDataGenerator(
+        featurewise_center=config.image_data_generator.featurewise_center,
+        featurewise_std_normalization=config.image_data_generator.featurewise_std_normalization,
+        rotation_range=config.image_data_generator.rotation_range,
+        width_shift_range=config.image_data_generator.width_shift_range,
+        horizontal_flip=config.image_data_generator.horizonal_flip,
+        height_shift_range=config.image_data_generator.height_shift_range,
+        zoom_range=config.image_data_generator.zoom_range,
+        fill_mode='nearest',
+    )
+
     for r in range(rounds):
       for d in image_dictionary:
         class_name = d["class_name"]
-        images, masks = generate_images(config, image_util, output_path, r, class_name, d["images"], d["masks"])
+        images, masks = generate_images(image_data_generator, config, image_util, output_path, r, class_name, d["images"], d["masks"])
         if use_original_image:
           create_difference_images(original_image, images, output_path + "/diff/" + class_name, r)
-        d["images"] = images
-        d["masks"] = masks
       print("Finished round (" + str(r+1) + "/" + str(rounds) + ")")
 
-def generate_images(config, image_util, output_path, prefix, class_name, images, masks):
+def generate_images(image_data_generator, config, image_util, output_path, prefix, class_name, images, masks):
     prefix = str(prefix) + "_" + class_name
     images_output_path = output_path + "/" + class_name
     masks_output_path = images_output_path + "/masks"
@@ -139,16 +148,16 @@ def generate_images(config, image_util, output_path, prefix, class_name, images,
     new_images = []
     new_masks = []
 
-    image_data_generator = tf.keras.preprocessing.image.ImageDataGenerator(
-        featurewise_center=config.image_data_generator.featurewise_center,
-        featurewise_std_normalization=config.image_data_generator.featurewise_std_normalization,
-        rotation_range=config.image_data_generator.rotation_range,
-        width_shift_range=config.image_data_generator.width_shift_range,
-        horizontal_flip=config.image_data_generator.horizonal_flip,
-        height_shift_range=config.image_data_generator.height_shift_range,
-        zoom_range=config.image_data_generator.zoom_range,
-        fill_mode='nearest',
-    )
+    # image_data_generator = tf.keras.preprocessing.image.ImageDataGenerator(
+    #     featurewise_center=config.image_data_generator.featurewise_center,
+    #     featurewise_std_normalization=config.image_data_generator.featurewise_std_normalization,
+    #     rotation_range=config.image_data_generator.rotation_range,
+    #     width_shift_range=config.image_data_generator.width_shift_range,
+    #     horizontal_flip=config.image_data_generator.horizonal_flip,
+    #     height_shift_range=config.image_data_generator.height_shift_range,
+    #     zoom_range=config.image_data_generator.zoom_range,
+    #     fill_mode='nearest',
+    # )
 
     image_data_generator.fit(resized_images, augment=True, seed=seed)
 

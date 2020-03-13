@@ -5,7 +5,7 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
-from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.optimizers import SGD, Adadelta, Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
@@ -60,6 +60,8 @@ class BaseModel:
 
     def create_callbacks(self):
         self.callbacks = []
+        self.callbacks.append(EarlyStopping(monitor="val_loss", min_delta=0, patience=10, mode="auto", restore_best_weights=True))
+        self.callbacks.append(EarlyStopping(monitor="val_accuracy", min_delta=0, patience=20, mode="auto", restore_best_weights=True))
         if self.config.train.checkpoints_path:
             self.callbacks.append(
                 ModelCheckpoint(
