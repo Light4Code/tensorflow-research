@@ -53,8 +53,9 @@ def main():
         os.makedirs(output_path)
 
     tf.saved_model.save(model_container.model, output_path)
-    graph_def = frozen_keras_graph(model_container.model)
+
     if args.save_frozen_graph and args.save_frozen_graph == True:
+        graph_def = frozen_keras_graph(model_container.model)
         tf.io.write_graph(graph_def, ".", output_path + "/frozen_graph.pb")
 
 
