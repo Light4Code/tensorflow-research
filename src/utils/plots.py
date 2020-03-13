@@ -20,8 +20,8 @@ def plot_difference(config, predictions, test_images):
   for test_image in test_images:
       original_image = test_image.reshape(plt_shape)
       pred_image = predictions[plt_index].reshape(plt_shape)
-      diff = image_util.create_diff(original_image, pred_image)
-      mask = ma.masked_where(diff < config.test_threshold, diff)
+      diff = image_util.create_diff(original_image, pred_image, config.test_threshold)
+      mask = ma.masked_where(diff == False, diff)
       plt.subplot(pred_count, 4, index)
       plt.title("Original")
       plt.imshow(original_image, interpolation="none", cmap=plt_cmap)

@@ -55,11 +55,10 @@ def main():
     tf.saved_model.save(model_container.model, output_path)
 
     if args.save_frozen_graph and args.save_frozen_graph == True:
-        graph_def = frozen_keras_graph(model_container.model)
-        tf.io.write_graph(graph_def, ".", output_path + "/frozen_graph.pb")
+        graph_def = create_frozen_graph(model_container.model)
+        tf.io.write_graph(graph_def, ".", output_path + "/frozen_graph.pb", as_text=False)
 
-
-def frozen_keras_graph(model):
+def create_frozen_graph(model):
     real_model = tf.function(model).get_concrete_function(
         tf.TensorSpec(
             model.inputs[0].shape, model.inputs[0].dtype, name=model.inputs[0].name

@@ -3,7 +3,8 @@ import numpy as np
 import numpy.ma as ma
 import tensorflow as tf
 from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.layers import BatchNormalization, Dense, Flatten, Reshape
+from tensorflow.keras.layers import (BatchNormalization, Dense, Flatten,
+                                     Lambda, Reshape)
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 
@@ -31,8 +32,8 @@ class DeepAutoencoderModel(BaseModel):
 
         sub_layer_size = int(translator_layer_size / 2)
         input_dim = input_shape[0] * input_shape[1] * input_shape[2]
-        input = tf.keras.Input(input_shape, name=self.input_name)
-        x = input
+        inputs = tf.keras.Input(input_shape, name=self.input_name, dtype=tf.float32)
+        x = inputs
         x = Flatten()(x)
         x = BatchNormalization()(x)
         x = Dense(translator_layer_size, activation="relu", name="encoder")(x)
@@ -43,8 +44,7 @@ class DeepAutoencoderModel(BaseModel):
         x = Dense(translator_layer_size, activation="relu", name="decoder")(x)
         x = Dense(input_dim, activation="sigmoid", name="reconstructor")(x)
         x = Reshape(input_shape, name=self.output_name)(x)
-
-        self.model = Model(input, x)
+        self.model = Model(inputs, x)
         return self.model
 
     def compile(self, loss="mean_squared_error"):
