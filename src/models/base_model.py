@@ -47,12 +47,15 @@ class BaseModel:
         if not optimizer:
             raise ValueError
 
+        learning_rate = self.config.train.learning_rate
+        decay = self.config.train.decay
+        momentum = self.config.train.decay
         if optimizer == "adam":
-            self.optimizer = Adam(lr=self.config.train.learning_rate)
+            self.optimizer = Adam(lr=learning_rate, decay=decay)
         elif optimizer == "sgd":
-            self.optimizer = SGD(lr=self.config.train.learning_rate, momentum=0.99)
+            self.optimizer = SGD(lr=learning_rate, decay=decay, momentum=momentum)
         elif optimizer == "adadelta":
-            self.optimizer = Adadelta(lr=self.config.train.learning_rate)
+            self.optimizer = Adadelta(lr=learning_rate, decay=decay)
         else:
             raise ValueError
 
@@ -60,8 +63,17 @@ class BaseModel:
 
     def create_callbacks(self):
         self.callbacks = []
-        self.callbacks.append(EarlyStopping(monitor="val_loss", min_delta=0, patience=10, mode="auto", restore_best_weights=True))
-        self.callbacks.append(EarlyStopping(monitor="val_accuracy", min_delta=0, patience=20, mode="auto", restore_best_weights=True))
+        if self.config.train.early_stopping:
+            if self.config.train.early_stopping.val_loss_epochs > 0:
+                self.callbacks.append(
+                    EarlyStopping(
+                        monitor="val_loss",
+                        min_delta=0,
+                        patience=self.config.train.early_stopping.val_loss_epochs,
+                        mode="auto",
+                        restore_best_weights=True,
+                    )
+                )
         if self.config.train.checkpoints_path:
             self.callbacks.append(
                 ModelCheckpoint(
@@ -95,9 +107,9 @@ class BaseModel:
                 callbacks=self.callbacks,
                 shuffle=False,
                 initial_epoch=self.initial_epoch,
-                validation_data=self.valid_datagen
+                validation_data=self.valid_datagen,
             )
-            
+
         else:
             self.history = self.model.fit(
                 self.train_images,
@@ -107,7 +119,7 @@ class BaseModel:
                 callbacks=self.callbacks,
                 shuffle=True,
                 initial_epoch=self.initial_epoch,
-                validation_split=self.config.train.validation_split
+                validation_split=self.config.train.validation_split,
             )
 
     def predict(self, test_images):
@@ -118,7 +130,7 @@ class BaseModel:
             )
 
     def plot_predictions(self, test_images):
-        utils.plot_prediction(config, self.predictions, test_images)
+        plot_prediction(self.config, self.predictions, test_images)
 
     def prepare_training(self):
         self.train_images = None
@@ -151,56 +163,58 @@ class BaseModel:
                 classes.append(0)
             seed = 33
             self.train_datagen = ImageDataGenerator(
-                     featurewise_center=self.config.image_data_generator_featurewise_center,
-                     featurewise_std_normalization=self.config.image_data_generator_featurewise_std_normalization,
-                     rotation_range=self.config.image_data_generator_rotation_range,
-                     width_shift_range=self.config.image_data_generator_width_shift_range,
-                     horizontal_flip=self.config.image_data_generator_horizonal_flip,
-                     height_shift_range=self.config.image_data_generator_height_shift_range,
-                     zoom_range=self.config.image_data_generator_zoom_range,
-                     fill_mode='nearest',
-                     validation_split=self.config.train.validation_split
+                featurewise_center=self.config.image_data_generator_featurewise_center,
+                featurewise_std_normalization=self.config.image_data_generator_featurewise_std_normalization,
+                rotation_range=self.config.image_data_generator_rotation_range,
+                width_shift_range=self.config.image_data_generator_width_shift_range,
+                horizontal_flip=self.config.image_data_generator_horizonal_flip,
+                height_shift_range=self.config.image_data_generator_height_shift_range,
+                zoom_range=self.config.image_data_generator_zoom_range,
+                fill_mode="nearest",
+                validation_split=self.config.train.validation_split,
             )
             self.y_train_datagen = ImageDataGenerator(
-                     featurewise_center=self.config.image_data_generator_featurewise_center,
-                     featurewise_std_normalization=self.config.image_data_generator_featurewise_std_normalization,
-                     rotation_range=self.config.image_data_generator_rotation_range,
-                     width_shift_range=self.config.image_data_generator_width_shift_range,
-                     horizontal_flip=self.config.image_data_generator_horizonal_flip,
-                     height_shift_range=self.config.image_data_generator_height_shift_range,
-                     zoom_range=self.config.image_data_generator_zoom_range,
-                     fill_mode='nearest',
-                     validation_split=self.config.train.validation_split
+                featurewise_center=self.config.image_data_generator_featurewise_center,
+                featurewise_std_normalization=self.config.image_data_generator_featurewise_std_normalization,
+                rotation_range=self.config.image_data_generator_rotation_range,
+                width_shift_range=self.config.image_data_generator_width_shift_range,
+                horizontal_flip=self.config.image_data_generator_horizonal_flip,
+                height_shift_range=self.config.image_data_generator_height_shift_range,
+                zoom_range=self.config.image_data_generator_zoom_range,
+                fill_mode="nearest",
+                validation_split=self.config.train.validation_split,
             )
             self.train_datagen.fit(self.train_images, augment=True, seed=seed)
             self.y_train_datagen.fit(self.y_train, augment=True, seed=seed)
             self.train_datagen = self.train_datagen.flow(
-                    self.train_images,
-                    batch_size=self.config.train.batch_size,
-                    seed=seed,
-                    subset="training"
-                    )
+                self.train_images,
+                batch_size=self.config.train.batch_size,
+                seed=seed,
+                subset="training",
+            )
             y_train_gen = self.y_train_datagen.flow(
-                    self.y_train,
-                    batch_size=self.config.train.batch_size,
-                    seed=seed,
-                    subset="training"
-                    )
+                self.y_train,
+                batch_size=self.config.train.batch_size,
+                seed=seed,
+                subset="training",
+            )
             self.valid_datagen = self.y_train_datagen.flow(
-                    self.train_images,
-                    self.y_train,
-                    batch_size=self.config.train.batch_size,
-                    seed=seed,
-                    subset="validation"
-                    )
+                self.train_images,
+                self.y_train,
+                batch_size=self.config.train.batch_size,
+                seed=seed,
+                subset="validation",
+            )
 
-            self.train_datagen = self.create_image_iterator(self.train_datagen, y_train_gen)
+            self.train_datagen = self.create_image_iterator(
+                self.train_datagen, y_train_gen
+            )
 
     def create_image_iterator(self, train_data_generator, valid_data_generator):
         gen = zip(train_data_generator, valid_data_generator)
         for (img, val) in gen:
             yield (img, val)
-            
+
     def load_image(self, path, target_shape=(256, 256, 1)):
         mode = self.image_util.get_color_mode(target_shape[2])
         image = self.image_util.load_image(path, mode)

@@ -5,14 +5,14 @@
     "batch_size": 10,
     "epochs": 100,
     "learning_rate": 1e-5,
-    "files_path": "",
+    "files_path": "PATH_TO_TRAINING_FILES",
     "mask_files_path": "",
-    "checkpoints_path": "",
+    "checkpoints_path": "PATH_WHERE_THE_CHECKPOINTS_SHOULD_BE_SAVED",
     "checkpoint_save_period": 50,
     "checkpoint_path": "",
     "checkpoint_save_best_only": false
   },
-  "test": {
+  "eval": {
     "files_path": "PATH_TO_TEST_FILE",
     "threshold": 0.1
   }

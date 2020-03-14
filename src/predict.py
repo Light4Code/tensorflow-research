@@ -15,8 +15,8 @@ def main():
         help="Path to the configuration file containing all parameters for model training",
     )
     parser.add_argument(
-        "--test_files_path",
-        dest="test_files_path",
+        "--eval_files_path",
+        dest="eval_files_path",
         metavar="path",
         help="Path to the test files that should be predicted",
     )
@@ -42,14 +42,14 @@ def main():
         config.model = args.model
     if args.checkpoint_path:
         config.train.checkpoint_path = args.checkpoint_path
-    if args.test_files_path:
-        config.test_files_path = args.test_files_path
+    if args.eval_files_path:
+        config.eval.files_path = args.eval_files_path
 
     color_mode = image_util.cv2_grayscale
     if config.input_shape[2] == 3:
         color_mode = image_util.cv2_color
 
-    test_images = image_util.load_images(config.test_files_path, color_mode)
+    test_images = image_util.load_images(config.eval.files_path, color_mode)
     tmp_imgs = []
     for img in test_images:
         res = image_util.resize_image(img, config.input_shape[1], config.input_shape[0])

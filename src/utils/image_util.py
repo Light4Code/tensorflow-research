@@ -1,5 +1,6 @@
 import glob
 import os
+import ntpath
 
 import cv2
 import numpy as np
@@ -11,6 +12,31 @@ class ImageUtil:
         self.cv2_color = 1
         self.cv2_unchanged = -1
 
+    def load_images_and_masks(self, images_path, color_mode=-1):
+        image_files = sorted(glob.glob(images_path + "/*.png"))
+        images = []
+        masks = []
+
+        for f in image_files:
+            image = self.load_image(f, color_mode)
+            shape = image.shape
+            images.append(image)
+            masks.append(self.load_mask(f, (shape[0], shape[1], 1)))
+
+        return (images, masks)
+
+    def load_mask(self, image_path, shape):
+        image_filename = ntpath.basename(image_path)
+        image_dir = ntpath.dirname(image_path)
+        mask_path = image_dir + "/masks/" + image_filename
+        if os.path.exists(mask_path):
+            mask = self.load_image(mask_path, color_mode=self.cv2_grayscale)
+            mask = np.array(mask, dtype=np.uint8)
+            mask = mask.reshape(shape)
+        else:
+            mask = np.zeros(shape, dtype=np.uint8)
+        return mask
+
     def load_images(self, images_path, color_mode=-1):
         png_files = glob.glob(images_path + "/*.png")
         png_files = sorted(png_files)
@@ -18,6 +44,12 @@ class ImageUtil:
         for png_path in png_files:
             images.append(self.load_image(png_path, color_mode))
         return images
+
+    def save_image(self, image, path):
+        img = image
+        if image.shape[2] > 1:
+            img = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(path, img)
 
     def load_image(self, image_path, color_mode=-1):
         img = cv2.imread(image_path, color_mode)
@@ -67,7 +99,7 @@ class ImageUtil:
         original_mask_file_names = sorted(original_mask_file_names)
 
         for mask_file in original_mask_file_names:
-            mask_file_names.append(os.path.basename(mask_file))
+            mask_file_names.append(ntpath.basename(mask_file))
 
         color_mode = self.get_color_mode(config.input_shape[2])
         input_shape = config.input_shape
@@ -76,7 +108,7 @@ class ImageUtil:
         masks = []
         mask_index = 0
         for train_file in train_file_names:
-            tf = os.path.basename(train_file)
+            tf = ntpath.basename(train_file)
 
             if tf not in mask_file_names:
                 mask = self.create_empty_image(input_shape)

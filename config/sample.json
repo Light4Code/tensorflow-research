@@ -25,7 +25,7 @@
       "middle_layer_size": 32
     }
   },
-  "test": {
+  "eval": {
     "files_path": "PATH_TO_TEST_FILE",
     "threshold": 0.45
   },
