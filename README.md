@@ -34,35 +34,14 @@ Anomaly detection will use a autoencoder approche, the prediction substratced fr
 - [Vanilla Unet](https://arxiv.org/pdf/1505.04597.pdf) (original paper)
 - [Custom/Satellite Unet](https://github.com/karolzak/keras-unet)
 
-|Model|Group|Config|
-|:---:|:---:|:---:|
-|Convolutional Classification|Classification|`conv_classification`|
-|---|---|---|
-|Deep Autoencoder|Anomaly Detection|`deep_autoencoder`|
-|Convolutional Autoencoder|Anomaly Detection|`conv_autoencoder`|
-|Custom Convolutional Autoencoder|Anomaly Detection|`custom_conv_autoencoder`|
-|---|---|---|
-|Vanilla Unet|Segmentation|`vanilla_unet`|
-|Satellite Unet|Segmentation|`satellite_unet`|
-|Custom Unet|Segmentation|`custom_unet`|
-
-
-## Sample test results
-### Environment
-    OS: Ubuntu 18.04
-    GPU: Nvidia RTX 2080Ti
-    CPU: Intel(R) Core(TM) i9-9900K CPU @ 3.60GHz
-    TensorFlow==2.1.0 is running with GPU support
-
-### Unet (vanilla)
-`vanilla_unet` <br/>
-It's critical to set the learning rate to a low value (1e-5) for this sample, we have only a few images and would quick overfit.
-
-[Used configuration](https://github.com/Light4Code/tensorflow-research/blob/master/config/anomaly_detection_wood_plate.json)
-
-As we can see the first 100 epochs are not enough, but the model is starting to recognize what it should detect.
-![vanilla_epoch100](https://raw.githubusercontent.com/Light4Code/tensorflow-research/master/doc/img/wood_vanilla_unet_100epoch.png)
-
-After 200 more epochs we get a nice result. <br/>
-Training the epochs is really quick with GPU, only 17ms per step.
-![vanilla_epoch300](https://raw.githubusercontent.com/Light4Code/tensorflow-research/master/doc/img/wood_vanilla_unet_300epoch.png)
+|              Model               |       Group       |          Config           |
+| :------------------------------: | :---------------: | :-----------------------: |
+|   Convolutional Classification   |  Classification   |   `conv_classification`   |
+|               ---                |        ---        |            ---            |
+|         Deep Autoencoder         | Anomaly Detection |    `deep_autoencoder`     |
+|    Convolutional Autoencoder     | Anomaly Detection |    `conv_autoencoder`     |
+| Custom Convolutional Autoencoder | Anomaly Detection | `custom_conv_autoencoder` |
+|               ---                |        ---        |            ---            |
+|           Vanilla Unet           |   Segmentation    |      `vanilla_unet`       |
+|          Satellite Unet          |   Segmentation    |     `satellite_unet`      |
+|           Custom Unet            |   Segmentation    |       `custom_unet`       |

@@ -5,6 +5,7 @@ from utils import ImageUtil
 
 
 def plot_difference(config, predictions, test_images):
+    plt.figure(figsize=(20, 10))
     image_util = ImageUtil()
     pred_count = len(predictions)
     plt_shape = (config.input_shape[0], config.input_shape[1])
@@ -44,6 +45,7 @@ def plot_difference(config, predictions, test_images):
 
 
 def plot_prediction(config, predictions, test_images):
+    plt.figure(figsize=(20, 10))
     pred_count = len(predictions)
     plt_shape = (config.input_shape[0], config.input_shape[1])
     plt_cmap = "gray"

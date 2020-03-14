@@ -1,8 +1,3 @@
-# root folder
-# |-class folder
-#     |-images
-#     |-mask folder
-#         |- mask images
 import argparse
 import os
 from glob import glob
@@ -93,8 +88,8 @@ def main():
             image_dictionary.append(d)
             class_count += 1
 
-    image_data_generator = create_image_data_generator(config)
-    mask_data_generator = create_image_data_generator(config)
+    image_data_generator = create_image_data_generator(config.image_data_generator)
+    mask_data_generator = create_image_data_generator(config.image_data_generator)
 
     for r in range(rounds):
         for d in image_dictionary:
@@ -117,20 +112,6 @@ def main():
 
 
 import uuid
-
-
-def create_image_data_generator(config):
-    data_generator = tf.keras.preprocessing.image.ImageDataGenerator(
-        featurewise_center=config.image_data_generator.featurewise_center,
-        featurewise_std_normalization=config.image_data_generator.featurewise_std_normalization,
-        rotation_range=config.image_data_generator.rotation_range,
-        width_shift_range=config.image_data_generator.width_shift_range,
-        horizontal_flip=config.image_data_generator.horizonal_flip,
-        height_shift_range=config.image_data_generator.height_shift_range,
-        zoom_range=config.image_data_generator.zoom_range,
-        fill_mode="nearest",
-    )
-    return data_generator
 
 
 def save_files(images, masks, round_index, output_path, class_name):

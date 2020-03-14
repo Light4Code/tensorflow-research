@@ -14,6 +14,7 @@ class ImageGeneratorConfig:
     def __init__(self, root_node):
         super().__init__()
         self.raw = root_node
+        self.loop_count = get_entry(root_node, "loop_count", 1)
         self.horizonal_flip = get_entry(root_node, "horizontal_flip", False)
         self.zoom_range = get_entry(root_node, "zoom_range", 0)
         self.width_shift_range = get_entry(root_node, "width_shift_range", 0)

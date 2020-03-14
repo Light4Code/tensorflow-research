@@ -3,14 +3,24 @@
   "model": "vanilla_unet",
   "train": {
     "batch_size": 10,
-    "epochs": 100,
+    "epochs": 50,
     "learning_rate": 1e-5,
     "files_path": "PATH_TO_TRAINING_FILES",
     "mask_files_path": "",
     "checkpoints_path": "PATH_WHERE_THE_CHECKPOINTS_SHOULD_BE_SAVED",
     "checkpoint_save_period": 50,
     "checkpoint_path": "",
-    "checkpoint_save_best_only": false
+    "checkpoint_save_best_only": false,
+    "image_data_generator": {
+      "loop_count": 10,
+      "horizontal_flip": true,
+      "featurewise_center": false,
+      "featurewise_std_normalization": false,
+      "zoom_range": 0.3,
+      "width_shift_range": 0.3,
+      "height_shift_range": 0.3,
+      "rotation_range": 10
+    }
   },
   "eval": {
     "files_path": "PATH_TO_TEST_FILE",
