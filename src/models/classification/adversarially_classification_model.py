@@ -1,4 +1,5 @@
 import os
+from typing import Type
 import numpy as np
 import numpy.ma as ma
 import matplotlib.pyplot as plt
@@ -18,10 +19,11 @@ from tensorflow.keras.optimizers import Adam
 import neural_structured_learning as nsl
 from models import BaseModel
 from utils.plots import plot_classification
+from utils.config import *
 
 
 class AdversariallyClassificationModel(BaseModel):
-    def __init__(self, config):
+    def __init__(self, config: Type[Config]):
         super().__init__(config)
 
     def create_optimizer(self, optimizer=None):
@@ -121,5 +123,5 @@ class AdversariallyClassificationModel(BaseModel):
         plt.legend(["Train", "Test"], loc="upper left")
         plt.show()
 
-    def plot_predictions(self, test_images):
+    def plot_predictions(self, test_images: []):
         plot_classification(self.config, self.predictions, test_images, ["NOK", "OK"])

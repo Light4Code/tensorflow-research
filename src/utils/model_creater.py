@@ -1,9 +1,19 @@
+from typing import Type
+from .config import Config
 from models.anomaly_detection import *
 from models.classification import *
 from models.segmentation import *
 
 
-def create_model(config):
+def create_model(config: Type[Config]):
+    """Create a new model by configuration definition
+    
+    Arguments:
+        config {[type]} -- Main configuration
+    
+    Returns:
+        [type] -- New created model
+    """
     if config.model == "deep_autoencoder":
         model_container = DeepAutoencoderModel(config)
     elif config.model == "custom_conv_autoencoder":

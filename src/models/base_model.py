@@ -1,6 +1,7 @@
 import abc
 import os
 import re
+from typing import Type
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,7 +16,7 @@ from utils.image_data_generator import *
 
 
 class BaseModel:
-    def __init__(self, config):
+    def __init__(self, config: Type[Config]):
         super().__init__()
         self.input_name = "input"
         self.output_name = "output"
@@ -112,14 +113,14 @@ class BaseModel:
             validation_split=self.config.train.validation_split,
         )
 
-    def predict(self, test_images):
+    def predict(self, test_images: []):
         self.predictions = []
         for img in test_images:
             self.predictions.append(
                 self.model.predict(np.array([img], dtype=np.float32), batch_size=1)
             )
 
-    def plot_predictions(self, test_images):
+    def plot_predictions(self, test_images: []):
         plot_prediction(self.config, self.predictions, test_images)
 
     def prepare_training(self):
@@ -146,7 +147,7 @@ class BaseModel:
         self.train_images = x
         self.y_train = y
 
-    def generate_datagen(self, x, y):
+    def generate_datagen(self, x: [], y: []):
         train_datagen = None
         y_train_datagen = None
         if self.config.train.image_data_generator:
@@ -179,14 +180,14 @@ class BaseModel:
 
             return np.array(tmp_train), np.array(tmp_y)
 
-    def load_image(self, path, target_shape=(256, 256, 1)):
+    def load_image(self, path: str, target_shape=(256, 256, 1)):
         mode = self.image_util.get_color_mode(target_shape[2])
         image = self.image_util.load_image(path, mode)
         resized = self.image_util.resize_image(image, target_shape[1], target_shape[0])
         resized = self.image_util.normalize(resized, target_shape)
         return resized
 
-    def load_images(self, path, target_shape=(256, 256, 1)):
+    def load_images(self, path: str, target_shape=(256, 256, 1)):
         mode = self.image_util.get_color_mode(target_shape[2])
         images = self.image_util.load_images(path, mode)
         resized = []
