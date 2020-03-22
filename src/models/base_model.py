@@ -25,11 +25,12 @@ class BaseModel:
 
         self.prepare_training()
         self.create_callbacks()
-        self.create_model()
         if self.config.train.optimizer:
             self.create_optimizer(self.config.train.optimizer)
         else:
             self.create_optimizer()
+
+        self.create_model()
 
         if self.config.train.loss:
             self.compile(loss=self.config.train.loss)
@@ -141,14 +142,16 @@ class BaseModel:
         self.y_train = np.array(self.y_train, dtype=np.float32)
 
         # Create train generator
-        self.generate_datagen()
+        x, y = self.generate_datagen(self.train_images, self.y_train)
+        self.train_images = x
+        self.y_train = y
 
-    def generate_datagen(self):
-        self.train_datagen = None
-        self.y_train_datagen = None
+    def generate_datagen(self, x, y):
+        train_datagen = None
+        y_train_datagen = None
         if self.config.train.image_data_generator:
             classes = []
-            for _ in range(len(self.train_images)):
+            for _ in range(len(x)):
                 classes.append(0)
             seed = 33
 
@@ -159,22 +162,22 @@ class BaseModel:
                 self.config.train.image_data_generator
             )
 
-            train_datagen.fit(self.train_images, augment=True, seed=seed)
-            y_train_datagen.fit(self.y_train, augment=True, seed=seed)
+            train_datagen.fit(x, augment=True, seed=seed)
+            y_train_datagen.fit(y, augment=True, seed=seed)
 
-            train_gen = train_datagen.flow(self.train_images, batch_size=1, seed=seed,)
-            train_y_gen = y_train_datagen.flow(self.y_train, batch_size=1, seed=seed,)
+            train_gen = train_datagen.flow(x, batch_size=1, seed=seed,)
+            train_y_gen = y_train_datagen.flow(y, batch_size=1, seed=seed,)
 
             tmp_train = []
             tmp_y = []
             for loop in range(self.config.train.image_data_generator.loop_count):
-                for t in range(len(self.train_images)):
+                for t in range(len(x)):
                     i = train_gen.next()
                     y = train_y_gen.next()
                     tmp_train.append(i[0])
                     tmp_y.append(y[0])
-            self.train_images = np.array(tmp_train)
-            self.y_train = np.array(tmp_y)
+
+            return np.array(tmp_train), np.array(tmp_y)
 
     def load_image(self, path, target_shape=(256, 256, 1)):
         mode = self.image_util.get_color_mode(target_shape[2])
@@ -192,3 +195,21 @@ class BaseModel:
             res = self.image_util.normalize(res, target_shape)
             resized.append(res)
         return resized
+
+    def plot_history(self):
+        history = self.history
+        plt.subplot(211)
+        plt.plot(history.history["accuracy"])
+        plt.plot(history.history["val_accuracy"])
+        plt.title("Model accuracy")
+        plt.ylabel("Accuracy")
+        plt.xlabel("Epoch")
+        plt.legend(["Train", "Test"], loc="upper left")
+        plt.subplot(212)
+        plt.plot(history.history["loss"])
+        plt.plot(history.history["val_loss"])
+        plt.title("Model loss")
+        plt.ylabel("Loss")
+        plt.xlabel("Epoch")
+        plt.legend(["Train", "Test"], loc="upper left")
+        plt.show()

@@ -6,6 +6,7 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras import backend as K
 
 from utils.config import Config
 from utils.model_creater import create_model
@@ -140,27 +141,16 @@ def main():
     # ToDo: Train model
     model.train()
     history = model.history
-    epochs = len(history.epoch) + model.initial_epoch
-    model.model.save_weights(
-        config.train.checkpoints_path + "/model-{0:04d}.ckpts".format(epochs)
-    )
+    if not history == None:
+        epochs = len(history.epoch) + model.initial_epoch
+        model.model.save_weights(
+            config.train.checkpoints_path + "/model-{0:04d}.ckpts".format(epochs)
+        )
 
-    if plot_history:
-        plt.subplot(211)
-        plt.plot(history.history["accuracy"])
-        plt.plot(history.history["val_accuracy"])
-        plt.title("Model accuracy")
-        plt.ylabel("Accuracy")
-        plt.xlabel("Epoch")
-        plt.legend(["Train", "Test"], loc="upper left")
-        plt.subplot(212)
-        plt.plot(history.history["loss"])
-        plt.plot(history.history["val_loss"])
-        plt.title("Model loss")
-        plt.ylabel("Loss")
-        plt.xlabel("Epoch")
-        plt.legend(["Train", "Test"], loc="upper left")
-        plt.show()
+        if plot_history:
+            model.plot_history()
+
+    K.clear_session()
 
 
 if __name__ == "__main__":

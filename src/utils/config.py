@@ -46,6 +46,9 @@ class TrainConfig:
         super().__init__()
         self.raw = root_node
         self.files_path = get_entry(root_node, "files_path", None)
+        self.alternative_files_path = get_entry(
+            root_node, "alternative_files_path", None
+        )
 
         self.epochs = get_entry(root_node, "epochs", 10)
         self.batch_size = get_entry(root_node, "batch_size", 1)

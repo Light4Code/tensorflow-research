@@ -3,6 +3,7 @@ import argparse
 import numpy as np
 
 from utils import *
+from tensorflow.keras import backend as K
 
 
 def main():
@@ -33,6 +34,13 @@ def main():
         help="Overwrites the path to the saved checkpoint containing the model weights",
     )
 
+    physical_devices = tf.config.list_physical_devices("GPU")
+    try:
+        tf.config.experimental.set_memory_growth(physical_devices[0], True)
+    except:
+        # Invalid device or cannot modify virtual devices once initialized.
+        pass
+
     args = parser.parse_args()
     config_path = args.config
     config = Config(config_path)
@@ -60,6 +68,8 @@ def main():
     model = create_model(config)
     model.predict(test_images)
     model.plot_predictions(test_images)
+
+    K.clear_session()
 
 
 if __name__ == "__main__":

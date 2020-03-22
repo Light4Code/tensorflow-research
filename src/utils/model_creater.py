@@ -20,6 +20,8 @@ def create_model(config):
         model_container = VanillaUnetModel(config)
     elif config.model == "conv_classification":
         model_container = ConvClassificationModel(config)
+    elif config.model == "adversarially_classification":
+        model_container = AdversariallyClassificationModel(config)
     else:
         TypeError
 

@@ -4,6 +4,7 @@ import ntpath
 
 import cv2
 import numpy as np
+from skimage.util import random_noise
 
 
 class ImageUtil:
@@ -120,3 +121,11 @@ class ImageUtil:
                 mask_index += 1
             masks.append(mask)
         return masks
+
+    def create_noisy_images(self, original_images):
+        lst_noisy = []
+        sigma = 0.155
+        for image in original_images:
+            noisy = random_noise(image, var=sigma ** 2)
+            lst_noisy.append(noisy)
+        return np.array(lst_noisy)
