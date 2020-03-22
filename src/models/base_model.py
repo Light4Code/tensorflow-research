@@ -198,6 +198,7 @@ class BaseModel:
 
     def plot_history(self):
         history = self.history
+        plt.figure(figsize=(20, 10))
         plt.subplot(211)
         plt.plot(history.history["accuracy"])
         plt.plot(history.history["val_accuracy"])

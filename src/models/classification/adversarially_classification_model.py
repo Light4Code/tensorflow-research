@@ -111,6 +111,7 @@ class AdversariallyClassificationModel(BaseModel):
 
     def plot_history(self):
         history = self.history
+        plt.figure(figsize=(20, 10))
         plt.subplot(111)
         plt.plot(history.history["loss"])
         plt.plot(history.history["adversarial_loss"])
