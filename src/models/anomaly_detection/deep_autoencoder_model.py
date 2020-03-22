@@ -9,6 +9,7 @@ from tensorflow.keras.optimizers import Adam
 
 from models import BaseModel
 from utils.plots import *
+from backbones import AutoEncoderFullConnected
 
 
 class DeepAutoencoderModel(BaseModel):
@@ -29,22 +30,13 @@ class DeepAutoencoderModel(BaseModel):
             translator_layer_size = 100
             middle_layer_size = 16
 
-        sub_layer_size = int(translator_layer_size / 2)
-        input_dim = input_shape[0] * input_shape[1] * input_shape[2]
-        inputs = tf.keras.Input(input_shape, name=self.input_name)
-        x = inputs
-        x = Flatten()(x)
-        x = BatchNormalization()(x)
-        x = Dense(translator_layer_size, activation="relu", name="encoder")(x)
-        x = Dense(sub_layer_size, activation="relu")(x)
-        x = Dense(middle_layer_size, activation="relu")(x)
-        x = Dense(sub_layer_size, activation="relu")(x)
-        x = BatchNormalization()(x)
-        x = Dense(translator_layer_size, activation="relu", name="decoder")(x)
-        x = Dense(input_dim, activation="sigmoid", name="reconstructor")(x)
-        x = Reshape(input_shape, name=self.output_name)(x)
-        self.model = Model(inputs, x)
-        return self.model
+        backbone = AutoEncoderFullConnected(
+            input_shape,
+            translator_layer_size=translator_layer_size,
+            middle_layer_size=middle_layer_size,
+        )
+        self.model = backbone.model
+        return backbone.model
 
     def compile(self, loss="mean_squared_error"):
         self.model.compile(loss=loss, optimizer=self.optimizer, metrics=["accuracy"])

@@ -79,10 +79,14 @@ class ImageUtil:
         return mode
 
     def normalize(self, image, shape: Vector):
-        return image.reshape(shape) / 255.0  # create normalized image
+        return np.array(
+            image.reshape(shape) / 255.0, dtype=np.float32
+        )  # create normalized image
 
     def create_diff(self, original_image, predicted_image, threshold: float):
-        return cv2.subtract(original_image, predicted_image) > threshold
+        return np.array(
+            cv2.subtract(original_image, predicted_image) > threshold, dtype=np.float32
+        )
 
     def apply_threshold(self, diff_image, threshold: float):
         diff_image[diff_image < threshold] = 0
@@ -90,7 +94,7 @@ class ImageUtil:
         return diff_image
 
     def create_empty_image(self, shape=(256, 256, 1)):
-        return np.zeros(shape)
+        return np.zeros(shape, dtype=np.float32)
 
     def create_mask_images(self, config: Type[Config]) -> []:
         train_images_path = config.train.files_path

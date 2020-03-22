@@ -143,9 +143,9 @@ class BaseModel:
         self.y_train = np.array(self.y_train, dtype=np.float32)
 
         # Create train generator
-        x, y = self.generate_datagen(self.train_images, self.y_train)
-        self.train_images = x
-        self.y_train = y
+        self.train_images, self.y_train = self.generate_datagen(
+            self.train_images, self.y_train
+        )
 
     def generate_datagen(self, x: [], y: []):
         train_datagen = None
@@ -179,6 +179,8 @@ class BaseModel:
                     tmp_y.append(y[0])
 
             return np.array(tmp_train), np.array(tmp_y)
+        else:
+            return np.array(x), np.array(y)
 
     def load_image(self, path: str, target_shape=(256, 256, 1)):
         mode = self.image_util.get_color_mode(target_shape[2])

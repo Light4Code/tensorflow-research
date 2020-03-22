@@ -40,6 +40,7 @@ class ConvAutoencoderModel(BaseModel):
         activation = "relu"
         activation_function = "sigmoid"
         input_shape = self.config.input_shape
+        channels = input_shape[2]
         inputs = Input(shape=input_shape, name=self.input_name)
         x = inputs
 
@@ -56,8 +57,7 @@ class ConvAutoencoderModel(BaseModel):
             x = UpSampling2D(max_pooling_size)(x)
 
         decoded = Conv2D(
-            1, kernel_size, activation=activation_function, padding=padding
+            channels, kernel_size, activation=activation_function, padding=padding
         )(x)
 
         self.model = Model(inputs, decoded)
-
