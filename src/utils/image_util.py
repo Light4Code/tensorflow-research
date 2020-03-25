@@ -16,20 +16,76 @@ class ImageUtil:
         self.cv2_color = 1
         self.cv2_unchanged = -1
 
-    def load_images_and_masks(self, images_path: str, color_mode=-1) -> ([], []):
+    def load_images_and_masks(
+        self, root_path: str, target_shape: Vector
+    ) -> ([], [], [], []):
+        class_dirs = []
+        for di in sorted(glob.glob(root_path + "/*")):
+            if os.path.isdir(di):
+                class_dirs.append(di)
+        class_count = len(class_dirs)
+        image_dictionary = []
+
+        class_labels = []
+        class_indexes = []
+        train_x = []
+        tmp_masks = []
+
+        if class_count == 0:
+            print("No classes detected, will continue without classes!")
+            images, masks = self._load_images_and_masks(root_path, target_shape)
+            d = dict(index=0, class_name="0", images=images, masks=masks)
+            for idx in range(len(images)):
+                class_labels.append("0")
+                class_indexes.append(0)
+                train_x.append(
+                    np.array(images[idx], dtype=np.float32).reshape(target_shape)
+                )
+                tmp_masks.append(
+                    np.array(masks[idx], dtype=np.float32).reshape(target_shape)
+                )
+        else:
+            class_count = 0
+            for class_dir in class_dirs:
+                class_name = os.path.basename(class_dir)
+                images, masks = self._load_images_and_masks(class_dir, target_shape)
+                for idx in range(len(images)):
+                    class_labels.append("{0}".format(class_count))
+                    class_indexes.append(class_count)
+                    train_x.append(
+                        np.array(images[idx], dtype=np.float32).reshape(target_shape)
+                    )
+                tmp_masks.append(
+                    np.array(masks[idx], dtype=np.float32).reshape(target_shape)
+                )
+                class_count += 1
+
+        return (
+            np.array(class_labels),
+            np.array(class_indexes, dtype=np.int),
+            np.array(train_x, dtype=np.float32),
+            np.array(tmp_masks, dtype=np.float32),
+        )
+
+    def _load_images_and_masks(
+        self, images_path: str, target_shape: Vector
+    ) -> ([], []):
         image_files = sorted(glob.glob(images_path + "/*.png"))
         images = []
         masks = []
-
+        mode = self.get_color_mode(target_shape[2])
         for f in image_files:
-            image = self.load_image(f, color_mode)
+            image = self.load_image(f, mode)
+            resized_image = self.resize_image(image, target_shape[1], target_shape[0])
             shape = image.shape
-            images.append(image)
-            masks.append(self.load_mask(f, (shape[0], shape[1], 1)))
+            images.append(self.normalize(resized_image, target_shape))
+            mask = self._load_mask(f, (shape[0], shape[1], 1))
+            resized_mask = self.resize_image(mask, target_shape[1], target_shape[0])
+            masks.append(self.normalize(resized_mask, target_shape))
 
         return (images, masks)
 
-    def load_mask(self, image_path: str, shape: Vector) -> []:
+    def _load_mask(self, image_path: str, shape: Vector) -> []:
         image_filename = ntpath.basename(image_path)
         image_dir = ntpath.dirname(image_path)
         mask_path = image_dir + "/masks/" + image_filename

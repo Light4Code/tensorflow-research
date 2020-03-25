@@ -36,7 +36,7 @@ class DeepAutoencoderModel(BaseModel):
             middle_layer_size=middle_layer_size,
         )
         self.model = backbone.model
-        return backbone.model
+        return self.model
 
     def compile(self, loss="mean_squared_error"):
         self.model.compile(loss=loss, optimizer=self.optimizer, metrics=["accuracy"])

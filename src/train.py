@@ -7,9 +7,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import backend as K
+from tensorflow.keras.optimizers import Adam
 
+from utils.environment_util import setup_environment
 from utils.config import Config
+from utils.image_util import ImageUtil
 from utils.model_creater import create_model
+from train_engine import TrainEngine
+from backbones import *
 
 
 def main():
@@ -121,35 +126,42 @@ def main():
     if args.plot_history:
         plot_history = True
 
-    # Set seed to get reproducable experiments
-    seed_value = 33
-    os.environ["PYTHONHASHSEED"] = str(seed_value)
-    random.seed(seed_value)
-    np.random.seed(seed_value)
-    tf.random.set_seed(seed_value)
+    setup_environment()
 
-    physical_devices = tf.config.list_physical_devices("GPU")
-    try:
-        tf.config.experimental.set_memory_growth(physical_devices[0], True)
-    except:
-        # Invalid device or cannot modify virtual devices once initialized.
-        pass
+    # # ToDo: Create model
+    # model = create_model(config)
 
-    # ToDo: Create model
-    model = create_model(config)
+    # # ToDo: Train model
+    # model.train()
+    # history = model.history
+    # if not history == None:
+    #     epochs = len(history.epoch) + model.initial_epoch
+    #     model.model.save_weights(
+    #         config.train.checkpoints_path + "/model-{0:04d}.ckpts".format(epochs)
+    #     )
 
-    # ToDo: Train model
-    model.train()
-    history = model.history
-    if not history == None:
-        epochs = len(history.epoch) + model.initial_epoch
-        model.model.save_weights(
-            config.train.checkpoints_path + "/model-{0:04d}.ckpts".format(epochs)
-        )
+    #     if plot_history:
+    #         model.plot_history()
 
-        if plot_history:
-            model.plot_history()
+    image_util = ImageUtil()
+    input_shape = config.input_shape
 
+    class_names, class_indexes, train_x, train_masks = image_util.load_images_and_masks(
+        config.train.files_path, input_shape
+    )
+
+    backbone = AutoEncoderFullConnected(input_shape)
+    optimizer = Adam(lr=0.001)
+
+    trainEngine = TrainEngine(
+        input_shape,
+        backbone.model,
+        optimizer,
+        epochs=1000,
+        checkpoints_save_path=config.train.checkpoints_path,
+        last_checkpoint_path=config.train.checkpoint_path,
+    )
+    trainEngine.train(train_x, train_x)
     K.clear_session()
 
 

@@ -16,8 +16,6 @@ def create_model(config: Type[Config]):
     """
     if config.model == "deep_autoencoder":
         model_container = DeepAutoencoderModel(config)
-    elif config.model == "custom_conv_autoencoder":
-        model_container = CustomConvAutoencoderModel(config)
     elif config.model == "conv_autoencoder":
         model_container = ConvAutoencoderModel(config)
     elif config.model == "small_unet":

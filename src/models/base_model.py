@@ -37,6 +37,7 @@ class BaseModel:
             self.compile(loss=self.config.train.loss)
         else:
             self.compile()
+
         self.load_weights()
 
     @abc.abstractmethod
@@ -52,7 +53,7 @@ class BaseModel:
 
         learning_rate = self.config.train.learning_rate
         decay = self.config.train.decay
-        momentum = self.config.train.decay
+        momentum = self.config.train.momentum
         if optimizer == "adam":
             self.optimizer = Adam(lr=learning_rate, decay=decay)
         elif optimizer == "sgd":

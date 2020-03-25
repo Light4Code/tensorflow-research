@@ -170,7 +170,7 @@ class TrainConfig:
 
     @checkpoint_path.setter
     def checkpoint_path(self, value: str) -> None:
-        self._checkpoint_path
+        self._checkpoint_path = value
 
     @property
     def checkpoints_path(self) -> str:
@@ -179,7 +179,7 @@ class TrainConfig:
 
     @checkpoints_path.setter
     def checkpoints_path(self, value: str) -> None:
-        self._checkpoints_path
+        self._checkpoints_path = value
 
     @property
     def checkpoint_save_period(self) -> int:
