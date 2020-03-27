@@ -132,8 +132,8 @@ def main():
     input_shape = config.input_shape
     train_x, train_y, eval_x, eval_y = load_dataset(config.train.files_path, input_shape)
 
-    backbone = backbones.AutoEncoderFullConnected(input_shape)
-    optimizer = SGD(lr=0.01, momentum=0.9, decay=0.0005)
+    backbone = backbones.SegmentationVanillaUnet(input_shape)
+    optimizer = SGD(lr=0.0001, momentum=0.9, decay=0.0005)
 
     train_engine = TrainEngine(
         input_shape,
@@ -142,11 +142,13 @@ def main():
         checkpoints_save_path=config.train.checkpoints_path,
         last_checkpoint_path=config.train.checkpoint_path,
     )
-    loss, acc, val_loss, val_acc = train_engine.train(train_x, train_y, eval_x, eval_y, epochs=1000)
+    config.train.image_data_generator.loop_count = 1
+    loss, acc, val_loss, val_acc = train_engine.train(train_x, train_y, eval_x, eval_y, epochs=100, batch_size=10, image_generator_config=config.train.image_data_generator)
     if plot_history:
         plots.plot_history(loss, acc, val_loss, val_acc)
-        predictions = train_engine.model.predict(np.array([eval_x[0]], dtype=np.float32), batch_size=1)
-        plots.plot_prediction(predictions, [eval_x[0]], input_shape, config.eval.threshold)
+        for idx in range(len(eval_x[:3])):
+            predictions = train_engine.model.predict(np.array([eval_x[idx]], dtype=np.float32), batch_size=1)
+            plots.plot_prediction(predictions, [eval_x[idx]], input_shape, config.eval.threshold)
     
     K.clear_session()
 

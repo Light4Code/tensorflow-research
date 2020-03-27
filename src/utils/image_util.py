@@ -63,7 +63,7 @@ def load_images_and_masks(root_path: str, target_shape: Vector) -> ([], [], [], 
 def draw_mask(image, mask, shape: Vector):
     img = np.array(image*255, dtype=np.uint8)
     mas = np.array(mask*255, dtype=np.uint8)
-    return np.array(cv2.bitwise_and(img, img, mask=mas)).reshape(shape)
+    return np.array(cv2.bitwise_not(img, img, mask=mas)).reshape(shape)
 
 def load_images(images_path: str, color_mode=-1) -> []:
     png_files = glob.glob(images_path + "/*.png")
