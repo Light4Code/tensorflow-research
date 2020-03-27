@@ -113,6 +113,7 @@ class TrainEngine:
             initial_epoch=self._initial_epoch,
             shuffle=True,
             validation_data=(eval_x, eval_y),
+            callbacks=self.callbacks,
             verbose=0,
         )
         self._initial_epoch = epochs

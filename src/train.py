@@ -19,6 +19,20 @@ def main():
         "test_files_path", metavar="path", help="Path to the test files",
     )
     parser.add_argument(
+        "--checkpoints_save_path",
+        dest="checkpoints_save_path",
+        metavar="path",
+        type=str,
+        help="Path where the checkpoints should be saved.",
+    )
+    parser.add_argument(
+        "--last_checkpoint_path",
+        dest="last_checkpoint_path",
+        metavar="path",
+        type=str,
+        help="Path to the last checkpoint to continue training.",
+    )
+    parser.add_argument(
         "--plot_history",
         dest="plot_history",
         metavar="boolean (default: false)",
@@ -48,16 +62,22 @@ def main():
         train_files_path, input_shape, validation_split=0
     )
 
-    eval_x, eval_y, t1, t2, = load_dataset(
+    eval_x, eval_y, _, _, = load_dataset(
         eval_files_path, input_shape, validation_split=0
     )
 
     backbone = backbones.SegmentationVanillaUnet(input_shape)
-    # optimizer = SGD(lr=0.0001, momentum=0.9, decay=0.0)
+    # optimizer = SGD(lr=0.0001, momentum=0.9, decay=0.0005)
     optimizer = Adam(lr=0.00001)
 
     train_engine = TrainEngine(
-        input_shape, backbone.model, optimizer, loss="binary_crossentropy"
+        input_shape,
+        backbone.model,
+        optimizer,
+        loss="binary_crossentropy",
+        checkpoints_save_path=args.checkpoints_save_path,
+        checkpoint_save_period=100,
+        last_checkpoint_path=args.last_checkpoint_path,
     )
 
     loss, acc, val_loss, val_acc = train_engine.train(
@@ -71,7 +91,7 @@ def main():
     )
     if plot_history:
         plots.plot_history(loss, acc, val_loss, val_acc)
-        for idx in range(len(eval_x[:3])):
+        for idx in range(len(eval_x[:2])):
             predictions = train_engine.model.predict(
                 np.array([eval_x[idx]], dtype=np.float32), batch_size=1
             )
