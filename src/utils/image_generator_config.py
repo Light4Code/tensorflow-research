@@ -2,19 +2,16 @@ from .config_util import get_entry
 
 
 class ImageGeneratorConfig:
-    def __init__(self, root_node: dict):
+    def __init__(self):
         super().__init__()
-        self.raw = root_node
-        self._loop_count = get_entry(root_node, "loop_count", 1)
-        self._horizonal_flip = get_entry(root_node, "horizontal_flip", False)
-        self._zoom_range = get_entry(root_node, "zoom_range", 0)
-        self._width_shift_range = get_entry(root_node, "width_shift_range", 0)
-        self._height_shift_range = get_entry(root_node, "height_shift_range", 0)
-        self._rotation_range = get_entry(root_node, "rotation_range", 0)
-        self._featurewise_center = get_entry(root_node, "featurewise_center", False)
-        self._featurewise_std_normalization = get_entry(
-            root_node, "featurewise_std_normalization", False
-        )
+        self._loop_count = 1
+        self._horizonal_flip = False
+        self._zoom_range = 0.0
+        self._width_shift_range = 0.0
+        self._height_shift_range = 0.0
+        self._rotation_range = 0.0
+        self._featurewise_center = False
+        self._featurewise_std_normalization = False
 
     @property
     def loop_count(self) -> int:

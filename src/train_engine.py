@@ -20,7 +20,7 @@ class TrainEngine:
         input_shape: Vector,
         model: Model,
         optimizer: Optimizer,
-        loss: str = "mean_squared_error",
+        loss: str = "binary_crossentropy",
         checkpoints_save_path: str = None,
         checkpoint_save_period: int = 10,
         last_checkpoint_path: str = None,
@@ -50,11 +50,11 @@ class TrainEngine:
         epochs: int = 100,
         image_generator_config: ImageGeneratorConfig = None,
         is_augment_y_enabled: bool = True,
-        augment_period: int = 10
+        augment_period: int = 10,
     ):
         self._create_callbacks(train_x)
         initial_epoch = self._initial_epoch
-        
+
         executed_epochs = 0
         hist_epochs = []
         hist_loss = []
@@ -62,24 +62,26 @@ class TrainEngine:
         hist_val_loss = []
         hist_val_acc = []
         while executed_epochs < epochs:
-            # for idx in range(len(train_x)):
-            #     m = iu.draw_mask(train_x[idx], train_y[idx], self.input_shape)
-            #     iu.save_image(m, "D:/tmp/{0}.png".format(idx))
-
             epoch_train_x, epoch_train_y = self._augment_data(
-                    train_x,
-                    train_y,
-                    image_generator_config,
-                    is_augment_y_enabled,
-                )
+                train_x, train_y, image_generator_config, is_augment_y_enabled,
+            )
 
             for idx in range(len(epoch_train_x)):
-                m = iu.draw_mask(epoch_train_x[idx], epoch_train_y[idx], self.input_shape)
-                iu.save_image(m, "D:/tmp/{0}.png".format(idx))
+                m = iu.draw_mask(
+                    epoch_train_x[idx], epoch_train_y[idx], self.input_shape
+                )
+                iu.save_image(m, "/home/light/temp/tmp/{0}.png".format(idx))
 
             # Train
             step_epochs = self._initial_epoch + augment_period
-            history = self._train(epoch_train_x, epoch_train_y, eval_x, eval_y, batch_size=batch_size, epochs=step_epochs)
+            history = self._train(
+                epoch_train_x,
+                epoch_train_y,
+                eval_x,
+                eval_y,
+                batch_size=batch_size,
+                epochs=step_epochs,
+            )
             hist_epochs.extend(history.epoch)
             hist_loss.extend(history.history["loss"])
             hist_acc.extend(history.history["accuracy"])
@@ -88,14 +90,22 @@ class TrainEngine:
             executed_epochs = executed_epochs + augment_period
 
             # Print epoch statistics
-            print_epoch_statistics(hist_loss, hist_acc, hist_val_loss, hist_val_acc, executed_epochs, epochs, initial_epoch)
+            print_epoch_statistics(
+                hist_loss,
+                hist_acc,
+                hist_val_loss,
+                hist_val_acc,
+                executed_epochs,
+                epochs,
+                initial_epoch,
+            )
 
         return (hist_loss, hist_acc, hist_val_loss, hist_val_acc)
 
     def _train(
         self, train_x, train_y, eval_x, eval_y, batch_size: int, epochs: int,
     ):
-        history= self.model.fit(
+        history = self.model.fit(
             train_x,
             train_y,
             batch_size=batch_size,
@@ -109,9 +119,7 @@ class TrainEngine:
         return history
 
     def _eval(self, epoch_data_x, epoch_data_y):
-        x = self.model.evaluate(
-            epoch_data_x, epoch_data_y, batch_size=1, verbose=0
-        )
+        x = self.model.evaluate(epoch_data_x, epoch_data_y, batch_size=1, verbose=0)
         return x
 
     def _augment_data(
@@ -128,13 +136,16 @@ class TrainEngine:
         if self.train_x_flow == None:
             train_x_datagen = create_image_data_generator(image_generator_config)
             train_x_datagen.fit(origin_train_x, augment=True, seed=seed)
-            self.train_x_flow = train_x_datagen.flow(origin_train_x, batch_size=1, seed=seed)
+            self.train_x_flow = train_x_datagen.flow(
+                origin_train_x, batch_size=1, seed=seed
+            )
 
-        
         if is_augment_y_enabled and self.train_y_flow == None:
             train_y_datagen = create_image_data_generator(image_generator_config)
             train_y_datagen.fit(origin_train_y, augment=True, seed=seed)
-            self.train_y_flow = train_y_datagen.flow(origin_train_y, batch_size=1, seed=seed)
+            self.train_y_flow = train_y_datagen.flow(
+                origin_train_y, batch_size=1, seed=seed
+            )
 
         tmp_train_x = []
         tmp_train_y = []
