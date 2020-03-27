@@ -3,13 +3,14 @@ import numpy as np
 import numpy.ma as ma
 import tensorflow as tf
 from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.layers import BatchNormalization, Dense, Flatten, Lambda, Reshape
+from tensorflow.keras.layers import (BatchNormalization, Dense, Flatten,
+                                     Lambda, Reshape)
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 
+import backbones
 from models import BaseModel
 from utils.plots import *
-from backbones import AutoEncoderFullConnected
 
 
 class DeepAutoencoderModel(BaseModel):
@@ -30,7 +31,7 @@ class DeepAutoencoderModel(BaseModel):
             translator_layer_size = 100
             middle_layer_size = 16
 
-        backbone = AutoEncoderFullConnected(
+        backbone = backbones.AutoEncoderFullConnected(
             input_shape,
             translator_layer_size=translator_layer_size,
             middle_layer_size=middle_layer_size,

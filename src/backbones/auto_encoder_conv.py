@@ -1,18 +1,13 @@
-from .base_backbone import BaseBackbone
-from utils.custom_types import Vector
-from utils.activation_util import get_activation_layer
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import Input
+from tensorflow.keras.layers import (BatchNormalization, Conv2D,
+                                     Conv2DTranspose, Dense, Flatten, Reshape)
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import (
-    Flatten,
-    BatchNormalization,
-    Dense,
-    Reshape,
-    Conv2D,
-    Conv2DTranspose,
-)
+
+from backbones.base_backbone import BaseBackbone
+from utils.activation_util import get_activation_layer
+from utils.custom_types import Vector
 
 
 class AutoEncoderConv(BaseBackbone):

@@ -10,9 +10,10 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.optimizers import SGD, Adadelta, Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
+import utils.image_util as iu
 from utils import *
-from utils.plots import *
 from utils.image_data_generator import *
+from utils.plots import *
 
 
 class BaseModel:
@@ -21,7 +22,6 @@ class BaseModel:
         self.input_name = "input"
         self.output_name = "output"
         self.initial_epoch = 0
-        self.image_util = ImageUtil()
         self.config = config
 
         self.prepare_training()
@@ -122,7 +122,7 @@ class BaseModel:
             )
 
     def plot_predictions(self, test_images: []):
-        plot_prediction(self.config, self.predictions, test_images)
+        plot_prediction(self.predictions, test_images, self.config.input_shape, self.config.eval.threshold)
 
     def prepare_training(self):
         self.train_images = None
@@ -132,10 +132,10 @@ class BaseModel:
         )
         self.train_images = np.array(self.train_images, dtype=np.float32)
         if self.config.train.mask_files_path:
-            original_masks = self.image_util.create_mask_images(self.config)
+            original_masks = iu.create_mask_images(self.config)
             masks = []
             for m in original_masks:
-                m = self.image_util.normalize(m, self.config.input_shape)
+                m = iu.normalize(m, self.config.input_shape)
                 masks.append(m)
             self.y_train = masks
         else:
@@ -184,19 +184,19 @@ class BaseModel:
             return np.array(x), np.array(y)
 
     def load_image(self, path: str, target_shape=(256, 256, 1)):
-        mode = self.image_util.get_color_mode(target_shape[2])
-        image = self.image_util.load_image(path, mode)
-        resized = self.image_util.resize_image(image, target_shape[1], target_shape[0])
-        resized = self.image_util.normalize(resized, target_shape)
+        mode = iu.get_color_mode(target_shape[2])
+        image = iu.load_image(path, mode)
+        resized = iu.resize_image(image, target_shape[1], target_shape[0])
+        resized = iu.normalize(resized, target_shape)
         return resized
 
     def load_images(self, path: str, target_shape=(256, 256, 1)):
-        mode = self.image_util.get_color_mode(target_shape[2])
-        images = self.image_util.load_images(path, mode)
+        mode = iu.get_color_mode(target_shape[2])
+        images = iu.load_images(path, mode)
         resized = []
         for img in images:
-            res = self.image_util.resize_image(img, target_shape[1], target_shape[0])
-            res = self.image_util.normalize(res, target_shape)
+            res = iu.resize_image(img, target_shape[1], target_shape[0])
+            res = iu.normalize(res, target_shape)
             resized.append(res)
         return resized
 

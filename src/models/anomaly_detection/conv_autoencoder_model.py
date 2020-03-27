@@ -3,21 +3,14 @@ import numpy as np
 import numpy.ma as ma
 import tensorflow as tf
 from tensorflow.keras import Input
-from tensorflow.keras.layers import (
-    Activation,
-    BatchNormalization,
-    Conv2D,
-    Conv2DTranspose,
-    Dense,
-    Flatten,
-    LeakyReLU,
-    Reshape,
-)
+from tensorflow.keras.layers import (Activation, BatchNormalization, Conv2D,
+                                     Conv2DTranspose, Dense, Flatten,
+                                     LeakyReLU, Reshape)
 from tensorflow.keras.models import Model
 
+import backbones
 from models import BaseModel
 from utils.plots import *
-from backbones import AutoEncoderConv
 
 
 class ConvAutoencoderModel(BaseModel):
@@ -50,6 +43,6 @@ class ConvAutoencoderModel(BaseModel):
             pass
 
         input_shape = self.config.input_shape
-        backbone = AutoEncoderConv(input_shape)
+        backbone = backbones.AutoEncoderConv(input_shape)
         self.model = backbone.model
         return self.model

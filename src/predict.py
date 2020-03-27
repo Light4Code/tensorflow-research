@@ -1,9 +1,10 @@
 import argparse
 
 import numpy as np
-
-from utils import *
 from tensorflow.keras import backend as K
+
+import utils.image_util as iu
+from utils import *
 
 
 def main():
@@ -44,7 +45,6 @@ def main():
     args = parser.parse_args()
     config_path = args.config
     config = Config(config_path)
-    image_util = ImageUtil()
 
     if args.model:
         config.model = args.model
@@ -53,15 +53,15 @@ def main():
     if args.eval_files_path:
         config.eval.files_path = args.eval_files_path
 
-    color_mode = image_util.cv2_grayscale
+    color_mode = iu.cv2_grayscale
     if config.input_shape[2] == 3:
-        color_mode = image_util.cv2_color
+        color_mode = iu.cv2_color
 
-    test_images = image_util.load_images(config.eval.files_path, color_mode)
+    test_images = iu.load_images(config.eval.files_path, color_mode)
     tmp_imgs = []
     for img in test_images:
-        res = image_util.resize_image(img, config.input_shape[1], config.input_shape[0])
-        norm = image_util.normalize(res, config.input_shape)
+        res = iu.resize_image(img, config.input_shape[1], config.input_shape[0])
+        norm = iu.normalize(res, config.input_shape)
         tmp_imgs.append(norm)
     test_images = np.array(tmp_imgs, dtype=np.float32)
 

@@ -7,14 +7,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import backend as K
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import SGD, Adam
 
-from utils.environment_util import setup_environment
-from utils.config import Config
-from utils.image_util import ImageUtil
-from utils.model_creater import create_model
-from train_engine import TrainEngine
+import utils.plots as plots
 from backbones import *
+from train_engine import TrainEngine
+from utils import load_dataset
+from utils.config import Config
+from utils.environment_util import setup_environment
+from utils.model_creater import create_model
 
 
 def main():
@@ -128,40 +129,25 @@ def main():
 
     setup_environment()
 
-    # # ToDo: Create model
-    # model = create_model(config)
-
-    # # ToDo: Train model
-    # model.train()
-    # history = model.history
-    # if not history == None:
-    #     epochs = len(history.epoch) + model.initial_epoch
-    #     model.model.save_weights(
-    #         config.train.checkpoints_path + "/model-{0:04d}.ckpts".format(epochs)
-    #     )
-
-    #     if plot_history:
-    #         model.plot_history()
-
-    image_util = ImageUtil()
     input_shape = config.input_shape
-
-    class_names, class_indexes, train_x, train_masks = image_util.load_images_and_masks(
-        config.train.files_path, input_shape
-    )
+    train_x, train_y, eval_x, eval_y = load_dataset(config.train.files_path, input_shape)
 
     backbone = AutoEncoderFullConnected(input_shape)
-    optimizer = Adam(lr=0.001)
+    optimizer = SGD(lr=0.01, momentum=0.9, decay=0.0005)
 
-    trainEngine = TrainEngine(
+    train_engine = TrainEngine(
         input_shape,
         backbone.model,
         optimizer,
-        epochs=1000,
         checkpoints_save_path=config.train.checkpoints_path,
         last_checkpoint_path=config.train.checkpoint_path,
     )
-    trainEngine.train(train_x, train_x)
+    loss, acc, val_loss, val_acc = train_engine.train(train_x, train_y, eval_x, eval_y, epochs=1000)
+    if plot_history:
+        plots.plot_history(loss, acc, val_loss, val_acc)
+        predictions = train_engine.model.predict(np.array([eval_x[0]], dtype=np.float32), batch_size=1)
+        plots.plot_prediction(predictions, [eval_x[0]], input_shape, config.eval.threshold)
+    
     K.clear_session()
 
 
