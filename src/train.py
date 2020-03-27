@@ -9,8 +9,8 @@ import tensorflow as tf
 from tensorflow.keras import backend as K
 from tensorflow.keras.optimizers import SGD, Adam
 
+import backbones
 import utils.plots as plots
-from backbones import *
 from train_engine import TrainEngine
 from utils import load_dataset
 from utils.config import Config
@@ -132,7 +132,7 @@ def main():
     input_shape = config.input_shape
     train_x, train_y, eval_x, eval_y = load_dataset(config.train.files_path, input_shape)
 
-    backbone = AutoEncoderFullConnected(input_shape)
+    backbone = backbones.AutoEncoderFullConnected(input_shape)
     optimizer = SGD(lr=0.01, momentum=0.9, decay=0.0005)
 
     train_engine = TrainEngine(

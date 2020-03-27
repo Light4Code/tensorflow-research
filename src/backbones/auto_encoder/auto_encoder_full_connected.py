@@ -1,8 +1,9 @@
-from .base_backbone import BaseBackbone
-from utils.activation_util import get_activation_layer
 from tensorflow.keras import Input
+from tensorflow.keras.layers import BatchNormalization, Dense, Flatten, Reshape
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Flatten, BatchNormalization, Dense, Reshape
+
+from backbones.base_backbone import BaseBackbone
+from utils.activation_util import get_activation_layer
 
 
 class AutoEncoderFullConnected(BaseBackbone):
