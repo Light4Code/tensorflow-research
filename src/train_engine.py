@@ -8,10 +8,12 @@ from tensorflow.keras.optimizers import Optimizer
 
 import utils.image_util as iu
 from backbones import BaseBackbone
-from utils import print_epoch_statistics
-from utils.config import ImageGeneratorConfig
-from utils.custom_types import Vector
-from utils.image_data_generator import create_image_data_generator
+from utils import (
+    print_epoch_statistics,
+    ImageGeneratorConfig,
+    Vector,
+    create_image_data_generator,
+)
 
 
 class TrainEngine:

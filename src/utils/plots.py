@@ -27,23 +27,26 @@ def plot_history(loss, acc, val_loss, val_acc):
     plt.legend(["Train", "Test"], loc="upper left")
     plt.show()
 
-def plot_difference(config, predictions, test_images):
+
+def plot_difference(
+    predictions, test_images, input_shape: Vector, threshold: float = 0.0
+):
     plt.figure(figsize=(20, 10))
     pred_count = len(predictions)
-    plt_shape = (config.input_shape[0], config.input_shape[1])
+    plt_shape = (input_shape[0], input_shape[1])
     plt_cmap = "gray"
-    if config.input_shape[2] > 1:
+    if input_shape[2] > 1:
         plt_shape = (
-            config.input_shape[0],
-            config.input_shape[1],
-            config.input_shape[2],
+            input_shape[0],
+            input_shape[1],
+            input_shape[2],
         )
     index = 1
     plt_index = 0
     for test_image in test_images:
         original_image = test_image.reshape(plt_shape)
         pred_image = predictions[plt_index].reshape(plt_shape)
-        diff = iu.create_diff(original_image, pred_image, config.eval.threshold)
+        diff, se = iu.create_diff(original_image, pred_image, threshold)
         mask = ma.masked_where(diff == False, diff)
         plt.subplot(pred_count, 4, index)
         plt.title("Original")
@@ -54,7 +57,7 @@ def plot_difference(config, predictions, test_images):
         plt.imshow(pred_image, interpolation="none", cmap=plt_cmap)
         index += 1
         plt.subplot(pred_count, 4, index)
-        plt.title("Difference")
+        plt.title("Diff (SE: {0})".format(round(se, 2)))
         plt.imshow(diff, interpolation="none", cmap=plt_cmap)
         index += 1
         plt.subplot(pred_count, 4, index)
@@ -66,7 +69,9 @@ def plot_difference(config, predictions, test_images):
     plt.show()
 
 
-def plot_prediction(predictions, test_images, input_shape: Vector, threshold: float=0.4):
+def plot_prediction(
+    predictions, test_images, input_shape: Vector, threshold: float = 0.4
+):
     plt.figure(figsize=(20, 10))
     pred_count = len(predictions)
     plt_shape = (input_shape[0], input_shape[1])
@@ -100,16 +105,16 @@ def plot_prediction(predictions, test_images, input_shape: Vector, threshold: fl
     plt.show()
 
 
-def plot_classification(config, predictions, test_images, classes):
+def plot_classification(predictions, test_images, input_shape: Vector, classes):
     plt.figure(figsize=(20, 10))
     pred_count = len(predictions)
-    plt_shape = (config.input_shape[0], config.input_shape[1])
+    plt_shape = (input_shape[0], input_shape[1])
     plt_cmap = "gray"
-    if config.input_shape[2] > 1:
+    if input_shape[2] > 1:
         plt_shape = (
-            config.input_shape[0],
-            config.input_shape[1],
-            config.input_shape[2],
+            input_shape[0],
+            input_shape[1],
+            input_shape[2],
         )
     index = 1
     plt_index = 0

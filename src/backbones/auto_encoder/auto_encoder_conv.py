@@ -1,8 +1,14 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import Input
-from tensorflow.keras.layers import (BatchNormalization, Conv2D,
-                                     Conv2DTranspose, Dense, Flatten, Reshape)
+from tensorflow.keras.layers import (
+    BatchNormalization,
+    Conv2D,
+    Conv2DTranspose,
+    Dense,
+    Flatten,
+    Reshape,
+)
 from tensorflow.keras.models import Model
 
 from backbones.base_backbone import BaseBackbone
@@ -19,7 +25,7 @@ class AutoEncoderConv(BaseBackbone):
         leaky_alpha=0.1,
         filters: Vector = (32, 64),
         kernel_size: Vector = (3, 3),
-        strides: int = 2,
+        strides=(1, 1),
         padding: str = "same",
         latent_dim: int = 16,
     ):
