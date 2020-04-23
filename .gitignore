@@ -133,3 +133,6 @@ dmypy.json
 
 # Custom
 checkpoints/*
+saved_models/*
+custom_img/*
+custom_notebooks/*

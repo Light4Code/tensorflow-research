@@ -68,12 +68,6 @@ class TrainEngine:
                 train_x, train_y, image_generator_config, is_augment_y_enabled,
             )
 
-            for idx in range(len(epoch_train_x)):
-                m = iu.draw_mask(
-                    epoch_train_x[idx], epoch_train_y[idx], self.input_shape
-                )
-                iu.save_image(m, "/home/light/temp/tmp/{0}.png".format(idx))
-
             # Train
             step_epochs = self._initial_epoch + augment_period
             history = self._train(
