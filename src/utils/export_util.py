@@ -6,7 +6,7 @@ from tensorflow.python.framework.convert_to_constants import (
 from tensorflow.lite.python.util import get_grappler_config, run_graph_optimizations
 
 
-def export_model(model, path: str, save_frozen: bool) -> None:
+def export_model(model, path: str, save_frozen: bool = True, model_name: str = "frozen_graph") -> None:
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -14,7 +14,7 @@ def export_model(model, path: str, save_frozen: bool) -> None:
 
     if save_frozen == True:
         graph = _create_frozen_graph(model)
-        tf.io.write_graph(graph, ".", path + "/frozen_graph.pb", as_text=False)
+        tf.io.write_graph(graph, ".", path + "/{model_name}.pb", as_text=False)
 
 
 def _create_frozen_graph(model):
