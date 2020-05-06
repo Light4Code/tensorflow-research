@@ -105,7 +105,7 @@ def plot_prediction(
     plt.show()
 
 
-def plot_classification(predictions, test_images, input_shape: Vector, classes):
+def plot_classification(predictions, test_images, input_shape: Vector, classes: [], threshold: float = 0.4):
     plt.figure(figsize=(20, 10))
     pred_count = len(predictions)
     plt_shape = (input_shape[0], input_shape[1])
@@ -123,7 +123,11 @@ def plot_classification(predictions, test_images, input_shape: Vector, classes):
         pred = predictions[plt_index]
         c_idx = np.argmax(pred)
         plt.subplot(pred_count, 1, index)
-        plt.title("{0} ({1})".format(classes[c_idx], pred[0][c_idx]))
+        value = pred[c_idx]
+        if (value >= threshold):
+            plt.title("{0} ({1})".format(classes[c_idx], value))
+        else:
+            plt.title("{0} ({1})".format("Unknown", value))
         plt.imshow(original_image, interpolation="none", cmap=plt_cmap)
         index += 1
         plt_index += 1
