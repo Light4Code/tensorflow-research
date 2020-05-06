@@ -2,27 +2,51 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
 
-from utils import ImageUtil
+import utils.image_util as iu
+from utils.custom_types import Vector
 
 
-def plot_difference(config, predictions, test_images):
+def plot_history(loss, acc, val_loss, val_acc):
     plt.figure(figsize=(20, 10))
-    image_util = ImageUtil()
+    plt.subplot(2, 1, 1)
+    plt.title("Loss")
+    plt.grid()
+    plt.plot(loss)
+    plt.plot(val_loss)
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.legend(["Train", "Test"], loc="upper left")
+
+    plt.subplot(2, 1, 2)
+    plt.title("Accuracy")
+    plt.grid()
+    plt.plot(acc)
+    plt.plot(val_acc)
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy")
+    plt.legend(["Train", "Test"], loc="upper left")
+    plt.show()
+
+
+def plot_difference(
+    predictions, test_images, input_shape: Vector, threshold: float = 0.0
+):
+    plt.figure(figsize=(20, 10))
     pred_count = len(predictions)
-    plt_shape = (config.input_shape[0], config.input_shape[1])
+    plt_shape = (input_shape[0], input_shape[1])
     plt_cmap = "gray"
-    if config.input_shape[2] > 1:
+    if input_shape[2] > 1:
         plt_shape = (
-            config.input_shape[0],
-            config.input_shape[1],
-            config.input_shape[2],
+            input_shape[0],
+            input_shape[1],
+            input_shape[2],
         )
     index = 1
     plt_index = 0
     for test_image in test_images:
         original_image = test_image.reshape(plt_shape)
         pred_image = predictions[plt_index].reshape(plt_shape)
-        diff = image_util.create_diff(original_image, pred_image, config.eval.threshold)
+        diff, se = iu.create_diff(original_image, pred_image, threshold)
         mask = ma.masked_where(diff == False, diff)
         plt.subplot(pred_count, 4, index)
         plt.title("Original")
@@ -33,7 +57,7 @@ def plot_difference(config, predictions, test_images):
         plt.imshow(pred_image, interpolation="none", cmap=plt_cmap)
         index += 1
         plt.subplot(pred_count, 4, index)
-        plt.title("Difference")
+        plt.title("Diff (SE: {0})".format(round(se, 2)))
         plt.imshow(diff, interpolation="none", cmap=plt_cmap)
         index += 1
         plt.subplot(pred_count, 4, index)
@@ -45,23 +69,25 @@ def plot_difference(config, predictions, test_images):
     plt.show()
 
 
-def plot_prediction(config, predictions, test_images):
+def plot_prediction(
+    predictions, test_images, input_shape: Vector, threshold: float = 0.4
+):
     plt.figure(figsize=(20, 10))
     pred_count = len(predictions)
-    plt_shape = (config.input_shape[0], config.input_shape[1])
+    plt_shape = (input_shape[0], input_shape[1])
     plt_cmap = "gray"
-    if config.input_shape[2] > 1:
+    if input_shape[2] > 1:
         plt_shape = (
-            config.input_shape[0],
-            config.input_shape[1],
-            config.input_shape[2],
+            input_shape[0],
+            input_shape[1],
+            input_shape[2],
         )
     index = 1
     plt_index = 0
     for test_image in test_images:
         original_image = test_image.reshape(plt_shape)
         pred_image = predictions[plt_index].reshape(plt_shape)
-        mask = ma.masked_where(pred_image < config.eval.threshold, pred_image)
+        mask = ma.masked_where(pred_image < threshold, pred_image)
         plt.subplot(pred_count, 3, index)
         plt.title("Original")
         plt.imshow(original_image, interpolation="none", cmap=plt_cmap)
@@ -79,16 +105,16 @@ def plot_prediction(config, predictions, test_images):
     plt.show()
 
 
-def plot_classification(config, predictions, test_images, classes):
+def plot_classification(predictions, test_images, input_shape: Vector, classes: [], threshold: float = 0.4):
     plt.figure(figsize=(20, 10))
     pred_count = len(predictions)
-    plt_shape = (config.input_shape[0], config.input_shape[1])
+    plt_shape = (input_shape[0], input_shape[1])
     plt_cmap = "gray"
-    if config.input_shape[2] > 1:
+    if input_shape[2] > 1:
         plt_shape = (
-            config.input_shape[0],
-            config.input_shape[1],
-            config.input_shape[2],
+            input_shape[0],
+            input_shape[1],
+            input_shape[2],
         )
     index = 1
     plt_index = 0
@@ -97,7 +123,11 @@ def plot_classification(config, predictions, test_images, classes):
         pred = predictions[plt_index]
         c_idx = np.argmax(pred)
         plt.subplot(pred_count, 1, index)
-        plt.title("{0} ({1})".format(classes[c_idx], pred[0][c_idx]))
+        value = pred[c_idx]
+        if (value >= threshold):
+            plt.title("{0} ({1})".format(classes[c_idx], value))
+        else:
+            plt.title("{0} ({1})".format("Unknown", value))
         plt.imshow(original_image, interpolation="none", cmap=plt_cmap)
         index += 1
         plt_index += 1
