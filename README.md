@@ -8,7 +8,7 @@ It will provide easy to use methods to train models from scratch and also fine t
 ## Starting point
 To quickly get into the usage you can look into the notebooks, they provide the whole training pipline step by step.
 
-## Backbonses
+## Backbones
 Backbones provide you with a ready to use model architectur.
 ### Anomaly detection
 Anomaly detection will use a autoencoder approche, the prediction substratced from the original image should show the anomaly.
