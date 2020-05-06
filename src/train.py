@@ -11,7 +11,8 @@ from utils import load_dataset, ImageGeneratorConfig, setup_environment
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Used to train TensorFlow model")
+    parser = argparse.ArgumentParser(
+        description="Used to train TensorFlow model")
     parser.add_argument(
         "train_files_path", metavar="path", help="Path to the training files.",
     )
