@@ -14,7 +14,8 @@ def export_model(model, path: str, save_frozen: bool = True, model_name: str = "
 
     if save_frozen == True:
         graph = _create_frozen_graph(model)
-        tf.io.write_graph(graph, ".", path + "/{model_name}.pb", as_text=False)
+        tf.io.write_graph(graph, ".", path +
+                          "/{0}.pb".format(model_name), as_text=False)
 
 
 def _create_frozen_graph(model):
