@@ -9,4 +9,4 @@ scikit-image
 neural-structured-learning
 Keras==2.3.1
 protobuf==3.11.3
-tensorflow==2.1.0
+tensorflow==2.5.3
