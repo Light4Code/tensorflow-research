@@ -8,5 +8,5 @@ sklearn
 scikit-image
 neural-structured-learning
 Keras==2.3.1
-protobuf==3.11.3
+protobuf==3.18.3
 tensorflow==2.1.0
